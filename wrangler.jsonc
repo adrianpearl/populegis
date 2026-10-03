@@ -5,15 +5,24 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "popui",
+	"compatibility_flags": ["nodejs_compat"],
 	"compatibility_date": "2026-10-01",
 	"main": "server/index.ts",
 	"assets": {
-		"not_found_handling": "single-page-application"
+		"not_found_handling": "single-page-application",
+		"directory": "./dist",
+		"binding": "ASSETS" // 🟢 Maps the asset engine to env.ASSETS inside your script
 	},
 	"observability": {
 		"enabled": true
 	},
-	"upload_source_maps": true
+	"upload_source_maps": true,
+	"hyperdrive": [
+		{
+			"binding": "HYPERDRIVE",
+			"id": "da1f9f3c95e54500999220d9a2deec18"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
