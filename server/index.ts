@@ -3,10 +3,10 @@ import type { ExportedHandler, Fetcher, HTMLRewriter as CFHTMLRewriter, Response
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-import { bills } from '../src/db/schema';
+import { bills, provisions } from '../src/db/schema';
 import * as schema from '../src/db/schema';
 import * as relations from '../src/db/relations';
-import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, inArray, or, lte, ne, sql, type SQL } from 'drizzle-orm';
 import type { BillSearch } from '../shared/bills';
 
 const ORDER_FIELDS = {
@@ -138,6 +138,57 @@ export default {
           error: 'Database query failed',
           details: err.message,
         }), { status: 500 });
+      } finally {
+        ctx.waitUntil(queryClient.end());
+      }
+    }
+
+    if (url.pathname === '/api/provisions') {
+      const packageid = url.searchParams.get('packageid');
+      if (!packageid) {
+        return new (globalThis as any).Response(
+          JSON.stringify({ error: 'packageid is required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } },
+        ) as unknown as CFResponse;
+      }
+
+      const { queryClient, db } = createDb(env);
+      try {
+        const levelLte = url.searchParams.get('levelLte');
+        const tag = url.searchParams.get('tag');
+        const tocOnly = url.searchParams.get('toc') === '1';
+        const limit = Math.min(Number(url.searchParams.get('limit')) || 1000, 2000);
+
+        const where = [eq(provisions.packageid, packageid)];
+        if (levelLte) where.push(lte(provisions.level, Number(levelLte)));
+        if (tag) {
+          where.push(or(
+            eq(provisions.provisionTag, tag),
+            ilike(provisions.provisionTag, `${tag}-%`),
+          )!);
+        }
+        // Hasura header: { _neq: "" } does not match null, so keep that.
+        if (tocOnly) {
+          where.push(or(
+            and(sql`${provisions.header} is not null`, ne(provisions.header, '')),
+            inArray(provisions.provisionType, ['title', 'section', 'quoted-block']),
+          )!);
+        }
+
+        const rows = await db.query.provisions.findMany({
+          where: and(...where),
+          orderBy: [asc(provisions.location)],
+          limit,
+        });
+
+        return new (globalThis as any).Response(JSON.stringify(rows), {
+          headers: { 'Content-Type': 'application/json' },
+        }) as unknown as CFResponse;
+      } catch (err: any) {
+        return new (globalThis as any).Response(JSON.stringify({
+          error: 'Database query failed',
+          details: err.message,
+        }), { status: 500 }) as unknown as CFResponse;
       } finally {
         ctx.waitUntil(queryClient.end());
       }
