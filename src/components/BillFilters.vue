@@ -5,7 +5,8 @@ import { ListFilter, X } from '@lucide/vue';
 import SearchSelect from './SearchSelect.vue';
 import CheckboxGroup from './CheckboxGroup.vue';
 import { Switch } from '@/components/ui/switch';
-import { Button} from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
+import { Input } from './ui/input/index.ts';
 import houseMembers from '../utils/houseMembers.json';
 import senateMembers from '../utils/senateMembers.json';
 import legislativeSubjects from '../utils/legislativeSubjects.json';
@@ -87,88 +88,90 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
 </script>
 
 <template>
-  <div :class="mobile ? '' : 'flex flex-col gap-2 dark:text-zinc-300'">
-    <div
-      class="flex gap-2 items-center"
+<div :class="mobile ? '' : 'flex flex-col gap-2 dark:text-zinc-300'">
+  <div class="flex gap-2 items-center" :class="mobile
+    ? 'overflow-x-auto py-2 px-5 dark:border-zinc-800 text-gray-700'
+    : 'flex-wrap py-2'">
+    <span v-if="mobile" class="text-primary">
+      <ListFilter :size="16" />
+    </span>
+    <button v-for="filter of filters" :key="filter.name"
+      @click="currentFilter = currentFilter === filter.name ? undefined : filter.name"
+      class="flex text-nowrap items-center gap-2 rounded-sm"
       :class="mobile
-        ? 'overflow-x-auto py-2 px-5 dark:border-zinc-800 text-gray-700'
-        : 'flex-wrap py-2'"
-    >
-      <span v-if="mobile" class="text-primary"><ListFilter :size="16" /></span>
-      <button
-        v-for="filter of filters"
-        :key="filter.name"
-        @click="currentFilter = currentFilter === filter.name ? undefined : filter.name"
-        class="flex text-nowrap items-center gap-2 rounded-sm"
-        :class="mobile
-          ? 'text-sm px-2 py-1 bg-muted text-accent-foreground'
-          : 'text-xs px-2.5 py-1.5 bg-zinc-900/5 hover:bg-zinc-900/10 dark:text-zinc-300 dark:bg-zinc-100/10 dark:hover:bg-gray-100/15'"
-      >
-        <span :class="currentFilter === filter.name && mobile ? 'font-semibold' : ''">{{ filter.name }}</span>
-        <span v-if="isSet(filter.value())" class="font-semibold" :class="mobile ? 'text-xs' : ''">
-          {{ display(filter.value()) }}
-        </span>
-        <span
-          v-if="isSet(filter.value())"
-          @click.stop="clear(filter.clear())"
-          :class="mobile ? '' : 'px-0.5 rounded-full hover:bg-primary/10'"
-        >
-          <X :size="16" />
-        </span>
-      </button>
-    </div>
+        ? 'text-sm px-2 py-1 bg-muted text-accent-foreground'
+        : 'text-xs px-2.5 py-1.5 bg-zinc-900/5 hover:bg-zinc-900/10 dark:text-zinc-300 dark:bg-zinc-100/10 dark:hover:bg-gray-100/15'">
+      <span :class="currentFilter === filter.name && mobile ? 'font-semibold' : ''">{{ filter.name }}</span>
+      <span v-if="isSet(filter.value())" class="font-semibold" :class="mobile ? 'text-xs' : ''">
+        {{ display(filter.value()) }}
+      </span>
+      <span v-if="isSet(filter.value())" @click.stop="clear(filter.clear())"
+        :class="mobile ? '' : 'px-0.5 rounded-full hover:bg-primary/10'">
+        <X :size="16" />
+      </span>
+    </button>
+  </div>
 
-    <hr v-if="!mobile" />
-    <div v-if="currentFilter" :class="mobile ? 'bg-muted/50 border-y dark:border-zinc-800' : ''">
-      <div class="flex flex-col gap-3 text-sm" :class="mobile ? 'px-6 py-4' : ''">
-        <div>{{ currentFilter }}</div>
+  <hr v-if="!mobile" />
+  <div v-if="currentFilter" :class="mobile ? 'bg-muted/50 border-y dark:border-zinc-800' : ''">
+    <div class="flex flex-col gap-3 text-sm" :class="mobile ? 'px-6 py-4' : ''">
+      <div>{{ currentFilter }}</div>
 
-        <select
-          v-if="currentFilter === 'Congress'"
-          multiple
-          class="w-full rounded-sm px-2"
-          :class="mobile ? 'border' : 'bg-zinc-50 dark:bg-zinc-700'"
-          :value="search.congress"
-          @change="set('congress', Array.from(($event.target as HTMLSelectElement).selectedOptions).map((o) => Number(o.value)))"
-        >
-          <option v-for="congress of congresses" :key="congress" :value="congress">{{ congress }}</option>
-        </select>
+      <select v-if="currentFilter === 'Congress'" multiple class="w-full rounded-sm px-2"
+        :class="mobile ? 'border' : 'bg-zinc-50 dark:bg-zinc-700'" :value="search.congress"
+        @change="set('congress', Array.from(($event.target as HTMLSelectElement).selectedOptions).map((o) => Number(o.value)))">
+        <option v-for="congress of congresses" :key="congress" :value="congress">{{ congress }}</option>
+      </select>
 
-        <div v-else-if="currentFilter === 'Chamber of Origin'" class="flex flex-col gap-2">
-          <label v-for="chamber of ['House', 'Senate']" :key="chamber" class="flex gap-2 items-center" :class="mobile ? '' : 'text-xs'">
-            <input type="radio" class="accent-blue-600" name="chamber" :value="chamber.toUpperCase()" :checked="search.originChamber === chamber.toUpperCase()" @change="set('originChamber', chamber.toUpperCase())" />
-            {{ chamber }}
-          </label>
-        </div>
-
-        <CheckboxGroup v-else-if="currentFilter === 'Bill Type'" :options="Object.keys(billTypeGroups)" v-model="selectedTypeGroups" />
-        <Input v-else-if="currentFilter === 'Number'" type="number" placeholder="Enter bill number" :model-value="search.number" @update:model-value="set('number', $event ? Number($event) : undefined)" />
-        <CheckboxGroup v-else-if="currentFilter === 'Version'" :options="Object.keys(versionGroups)" v-model="selectedVersionGroups" />
-
-        <div v-else-if="currentFilter === 'Sponsor'" :class="mobile ? '' : 'pb-10'">
-          <SearchSelect :model-value="search.sponsorName ?? ''" @update:model-value="set('sponsorName', $event || undefined)" :options="members" placeholder="Enter a member of congress" :mobile="mobile" />
-        </div>
-
-        <label v-else-if="currentFilter === 'Appropriations'" class="flex items-center space-x-3 text-sm text-gray-700 dark:text-zinc-400">
-          <Switch :model-value="search.appropriationsOnly" @update:model-value="set('appropriationsOnly', $event)" />
-          Appropriations bills only
+      <div v-else-if="currentFilter === 'Chamber of Origin'" class="flex flex-col gap-2">
+        <label v-for="chamber of ['House', 'Senate']" :key="chamber" class="flex gap-2 items-center"
+          :class="mobile ? '' : 'text-xs'">
+          <input type="radio" class="accent-blue-600" name="chamber" :value="chamber.toUpperCase()"
+            :checked="search.originChamber === chamber.toUpperCase()"
+            @change="set('originChamber', chamber.toUpperCase())" />
+          {{ chamber }}
         </label>
+      </div>
 
-        <SearchSelect v-else-if="currentFilter === 'Policy Area'" :model-value="search.policyArea ?? ''" @update:model-value="set('policyArea', $event || undefined)" :options="policyAreas" placeholder="Enter a policy area" :mobile="mobile" />
-        <SearchSelect v-else-if="currentFilter === 'Legislative Subjects'" :model-value="search.legislativeSubject ?? ''" @update:model-value="set('legislativeSubject', $event || undefined)" :options="legislativeSubjects" placeholder="Enter a legislative subject" :mobile="mobile" />
+      <CheckboxGroup v-else-if="currentFilter === 'Bill Type'" :options="Object.keys(billTypeGroups)"
+        v-model="selectedTypeGroups" />
+      <Input v-else-if="currentFilter === 'Number'" type="number" placeholder="Enter bill number"
+        :model-value="search.number" @update:model-value="set('number', $event ? Number($event) : undefined)" />
+      <CheckboxGroup v-else-if="currentFilter === 'Version'" :options="Object.keys(versionGroups)"
+        v-model="selectedVersionGroups" />
 
-        <div v-else-if="currentFilter === 'Title'" class="flex flex-col gap-4">
-          <Input v-model="titleQuery" placeholder="Enter bill title (in whole or in part)" />
-          <label class="flex items-center space-x-3 text-sm text-gray-700 dark:text-zinc-400">
-            <Switch :model-value="search.includeOfficialTitle" @update:model-value="set('includeOfficialTitle', $event)" />
-            Include official title
-          </label>
-        </div>
+      <div v-else-if="currentFilter === 'Sponsor'" :class="mobile ? '' : 'pb-10'">
+        <SearchSelect :model-value="search.sponsorName ?? ''"
+          @update:model-value="set('sponsorName', $event || undefined)" :options="members"
+          placeholder="Enter a member of congress" :mobile="mobile" />
+      </div>
 
-        <div v-if="mobile" class="flex justify-end">
-          <Button variant="outline" class="shadow-none bg-transparent" @click="currentFilter = undefined">Done</Button>
-        </div>
+      <label v-else-if="currentFilter === 'Appropriations'"
+        class="flex items-center space-x-3 text-sm text-gray-700 dark:text-zinc-400">
+        <Switch :model-value="search.appropriationsOnly" @update:model-value="set('appropriationsOnly', $event)" />
+        Appropriations bills only
+      </label>
+
+      <SearchSelect v-else-if="currentFilter === 'Policy Area'" :model-value="search.policyArea ?? ''"
+        @update:model-value="set('policyArea', $event || undefined)" :options="policyAreas"
+        placeholder="Enter a policy area" :mobile="mobile" />
+      <SearchSelect v-else-if="currentFilter === 'Legislative Subjects'" :model-value="search.legislativeSubject ?? ''"
+        @update:model-value="set('legislativeSubject', $event || undefined)" :options="legislativeSubjects"
+        placeholder="Enter a legislative subject" :mobile="mobile" />
+
+      <div v-else-if="currentFilter === 'Title'" class="flex flex-col gap-4">
+        <Input v-model="titleQuery" placeholder="Enter bill title (in whole or in part)" />
+        <label class="flex items-center space-x-3 text-sm text-gray-700 dark:text-zinc-400">
+          <Switch :model-value="search.includeOfficialTitle"
+            @update:model-value="set('includeOfficialTitle', $event)" />
+          Include official title
+        </label>
+      </div>
+
+      <div v-if="mobile" class="flex justify-end">
+        <Button variant="outline" class="shadow-none bg-transparent" @click="currentFilter = undefined">Done</Button>
       </div>
     </div>
   </div>
+</div>
 </template>

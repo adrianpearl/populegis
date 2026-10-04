@@ -75,7 +75,6 @@ async function loadFromRoute() {
   const id = ++requestId;
   isLoading.value = true;
   fetchError.value = null;
-  console.log(filters.value);
   try {
     const params = new URLSearchParams({
       filters: JSON.stringify(filters.value),

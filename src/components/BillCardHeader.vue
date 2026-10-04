@@ -3,7 +3,7 @@ import { type PropType, computed } from 'vue';
 import billVersions from '../utils/billVersions.json';
 import Tooltip from './Tooltip.vue';
 import { type Bill } from '@/views/HomeView.vue';
-// import { Badge } from './ui/badge';
+import { Badge } from './ui/badge';
 
 type BillHeaderType = 'main' | 'sub';
 
@@ -33,7 +33,7 @@ const billVersionInfo = computed(() =>
 <template>
 <div v-if="bill">
   <div v-if="headerType === 'main'" class="flex gap-1 items-center">
-    <span class="font-bold">{{ bill.billType }}.</span>
+    <span class="font-bold uppercase">{{ bill.billType }}.</span>
     <span class="font-bold">{{ bill.number }}</span>
     <Tooltip content="This bill is from a previous congress.">
       <Badge variant="secondary" class="ml-1" v-if="bill.congress != currentCongress && bill.congress > 0">
