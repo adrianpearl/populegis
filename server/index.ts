@@ -2,11 +2,33 @@
 import type { ExportedHandler, Fetcher, HTMLRewriter as CFHTMLRewriter, Response as CFResponse, Hyperdrive } from '@cloudflare/workers-types';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { eq, desc } from 'drizzle-orm';
 
 import { bills } from '../src/db/schema';
 import * as schema from '../src/db/schema';
 import * as relations from '../src/db/relations';
+import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
+import type { BillSearch } from '../shared/bills';
+
+const ORDER_FIELDS = {
+  dateIssued: bills.dateIssued,
+  lastModified: bills.lastModified,
+  lastAction: bills.lastAction,
+  lastUpdate: bills.lastUpdate,
+} as const;
+
+function readFilters(raw: string | null): Partial<BillSearch> {
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function like(value: string) {
+  return `%${value.replace(/[%_\\]/g, '\\$&')}%`;
+}
 
 const BOT_AGENTS = ['applebot', 'facebot', 'facebookexternalhit', 'twitterbot', 'slackbot', 'discordbot'];
 
@@ -64,26 +86,58 @@ export default {
 
     if (url.pathname === '/api/bills') {
       const { queryClient, db } = createDb(env);
-
       try {
-        const latestBills = await db.query.bills.findMany({
-          limit: 10,
-          orderBy: [desc(bills.dateIssued)],
-          with: {
-            tags: true,
-            comments: true,
-          },
+        const filters = readFilters(url.searchParams.get('filters'));
+        const orderKey = url.searchParams.get('orderField');
+        const orderColumn = ORDER_FIELDS[orderKey as keyof typeof ORDER_FIELDS] ?? bills.dateIssued;
+        const direction = url.searchParams.get('orderDir') === 'asc' ? asc : desc;
+        const limit = Math.min(Number(url.searchParams.get('limit')) || 10, 50);
+        const offset = Math.max(Number(url.searchParams.get('offset')) || 0, 0);
+
+        const where: SQL[] = [];
+        if (filters.congress?.length) where.push(inArray(bills.congress, filters.congress));
+        if (filters.originChamber) {
+          where.push(sql`lower(${bills.originChamber}) = lower(${filters.originChamber})`);
+        }
+        if (filters.billTypes?.length) {
+          where.push(inArray(bills.billType, filters.billTypes.map((t) => t.toLowerCase())));
+        }
+        if (filters.number != null && filters.number !== ('' as unknown)) {
+          where.push(eq(bills.number, Number(filters.number)));
+        }
+        if (filters.title) {
+          const pattern = like(filters.title);
+          where.push(
+            filters.includeOfficialTitle === false
+              ? ilike(bills.shortTitle, pattern)
+              : or(ilike(bills.shortTitle, pattern), ilike(bills.officialTitle, pattern))!,
+          );
+        }
+        if (filters.versions?.length) where.push(inArray(bills.version, filters.versions));
+        if (filters.sponsorName) {
+          where.push(sql`${bills.sponsor}::text ilike ${like(filters.sponsorName)}`);
+        }
+
+        const rows = await db.query.bills.findMany({
+          where: where.length ? and(...where) : undefined,
+          orderBy: [direction(orderColumn)],
+          limit: limit + 1,
+          offset,
+          with: { tags: true, comments: true },
         });
 
-        return new (globalThis as any).Response(JSON.stringify(latestBills), {
-          headers: { 'Content-Type': 'application/json' },
-        }) as unknown as CFResponse;
+        const hasMore = rows.length > limit;
+        return new (globalThis as any).Response(JSON.stringify(rows.slice(0, limit)), {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Has-More': String(hasMore),
+          },
+        });
       } catch (err: any) {
         return new (globalThis as any).Response(JSON.stringify({
           error: 'Database query failed',
           details: err.message,
-          stack: err.stack,
-        }), { status: 500 }) as unknown as CFResponse;
+        }), { status: 500 });
       } finally {
         ctx.waitUntil(queryClient.end());
       }

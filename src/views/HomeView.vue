@@ -15,25 +15,6 @@ import { useHead } from '@unhead/vue';
 // 1. Establish strict TypeScript interfaces inferred directly from your schema
 export type Bill = InferSelectModel<typeof bills>
 
-// 2. Pure browser-reactive references
-const billList = ref<Bill[]>([])
-const isLoading = ref(true)
-const fetchError = ref<string | null>(null)
-
-// 3. Dynamic client-side fetch loop running safely inside the browser window
-onMounted(async () => {
-  try {
-    const response = await fetch('/api/bills')
-    if (!response.ok) throw new Error('Network payload resolution error')
-
-    billList.value = await response.json()
-  } catch (err: any) {
-    fetchError.value = err.message || 'An error occurred while fetching legislative data.'
-  } finally {
-    isLoading.value = false
-  }
-})
-
 const emptyFilters = (): BillSearch => ({
   congress: [],
   originChamber: '',
@@ -50,17 +31,92 @@ const emptyFilters = (): BillSearch => ({
 
 const route = useRoute();
 const router = useRouter();
-const filters = ref<BillSearch>(emptyFilters());
-const orderField = ref<'dateIssued' | 'lastModified' | 'lastAction' | 'lastUpdate'>('dateIssued');
-const orderDir = ref<'asc' | 'desc'>('desc');
-const loadingMore = ref(false);
+
+function readFilters(raw: unknown): BillSearch {
+  if (typeof raw !== 'string' || !raw) return emptyFilters();
+  try {
+    return { ...emptyFilters(), ...JSON.parse(raw) };
+  } catch {
+    return emptyFilters();
+  }
+}
+
+function compactFilters(value: BillSearch): Partial<BillSearch> {
+  const empty = emptyFilters();
+  return Object.fromEntries(
+    Object.entries(value).filter(([key, v]) => JSON.stringify(v) !== JSON.stringify(empty[key as keyof BillSearch])),
+  );
+}
+
+const filters = ref<BillSearch>(readFilters(route.query.filters));
+type OrderField = 'dateIssued' | 'lastModified' | 'lastAction' | 'lastUpdate';
+const orderField = ref<OrderField>(
+  (route.query.orderField as OrderField) || 'dateIssued',
+);
+const orderDir = ref<'asc' | 'desc'>(
+  route.query.orderDir === 'asc' ? 'asc' : 'desc',
+);
+
+const billList = ref<Bill[]>([]);
+const isLoading = ref(true);
+const fetchError = ref<string | null>(null);
 const canLoadMore = ref(false);
+let requestId = 0;
 
-watch(filters, (next) => {
-  router.replace({ query: { filters: JSON.stringify(next) } });
-});
+function queryKey() {
+  return JSON.stringify({
+    filters: filters.value,
+    orderField: orderField.value,
+    orderDir: orderDir.value,
+  });
+}
 
-const loading = computed(() => isLoading);
+async function loadFromRoute() {
+  const id = ++requestId;
+  isLoading.value = true;
+  fetchError.value = null;
+  console.log(filters.value);
+  try {
+    const params = new URLSearchParams({
+      filters: JSON.stringify(filters.value),
+      orderField: orderField.value,
+      orderDir: orderDir.value,
+    });
+    const response = await fetch(`/api/bills?${params}`);
+    if (!response.ok) throw new Error('Network payload resolution error');
+    if (id !== requestId) return;
+    billList.value = await response.json();
+  } catch (err: any) {
+    if (id !== requestId) return;
+    fetchError.value = err.message || 'An error occurred while fetching legislative data.';
+  } finally {
+    if (id === requestId) isLoading.value = false;
+  }
+}
+
+// UI -> route. Deep because BillFilters mutates nested fields.
+watch([filters, orderField, orderDir], () => {
+  const next = {
+    ...route.query,
+    filters: JSON.stringify(compactFilters(filters.value)),
+    orderField: orderField.value,
+    orderDir: orderDir.value,
+  };
+  if (JSON.stringify(next) === JSON.stringify(route.query)) return;
+  router.replace({ query: next });
+}, { deep: true });
+
+// Route -> UI + fetch. The equality check stops the replace from looping.
+watch(() => route.query, () => {
+  const parsed = readFilters(route.query.filters);
+  if (JSON.stringify(parsed) !== JSON.stringify(filters.value)) filters.value = parsed;
+  const field = route.query.orderField;
+  if (field === 'dateIssued' || field === 'lastModified' || field === 'lastAction' || field === 'lastUpdate') {
+    orderField.value = field;
+  }
+  orderDir.value = route.query.orderDir === 'asc' ? 'asc' : 'desc';
+  loadFromRoute();
+}, { immediate: true });
 
 useHead({
   title: 'Browse Federal Bills & Legislation',
@@ -83,7 +139,7 @@ useHead({
     <div class="lg:hidden">
       <BillFilters v-model="filters" mobile />
     </div>
-    <div v-if="!loading && !billList.length" class="mx-auto text-center py-6 space-y-3">
+    <div v-if="!isLoading && !billList.length" class="mx-auto text-center py-6 space-y-3">
       <Button variant="secondary" size="lg">
         <FolderOpen />
       </Button>
@@ -92,7 +148,7 @@ useHead({
     <div class="flex flex-col divide-y px-4 lg:px-0">
       <BillCard v-for="bill in billList" :key="bill.packageid" :bill="bill" />
     </div>
-    <div v-if="loading" class="py-6 w-full">
+    <div v-if="isLoading" class="py-6 w-full">
       <div class="mx-auto w-min">
         <Loader />
       </div>
