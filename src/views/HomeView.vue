@@ -7,10 +7,11 @@ import { type BillSearch } from '../../shared/bills.ts';
 import Loader from '@/components/Loader.vue';
 import { Button } from '@/components/ui/button';
 import { useRoute, useRouter } from 'vue-router';
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch } from 'vue';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { bills } from '../db/schema';
 import { useHead } from '@unhead/vue';
+import { useApi } from '@/composables/useApi';
 
 // 1. Establish strict TypeScript interfaces inferred directly from your schema
 export type Bill = InferSelectModel<typeof bills>
@@ -57,40 +58,18 @@ const orderDir = ref<'asc' | 'desc'>(
   route.query.orderDir === 'asc' ? 'asc' : 'desc',
 );
 
-const billList = ref<Bill[]>([]);
-const isLoading = ref(true);
-const fetchError = ref<string | null>(null);
-const canLoadMore = ref(false);
-let requestId = 0;
+const { data: billList, isLoading, error: fetchError, hasMore, run } = useApi<Bill[]>([]);
+const loadingMore = ref(false);
 
-function queryKey() {
-  return JSON.stringify({
-    filters: filters.value,
+function billsUrl(offset = 0) {
+  const params = new URLSearchParams({
+    filters: JSON.stringify(compactFilters(filters.value)),
     orderField: orderField.value,
     orderDir: orderDir.value,
+    limit: '10',
+    offset: String(offset),
   });
-}
-
-async function loadFromRoute() {
-  const id = ++requestId;
-  isLoading.value = true;
-  fetchError.value = null;
-  try {
-    const params = new URLSearchParams({
-      filters: JSON.stringify(filters.value),
-      orderField: orderField.value,
-      orderDir: orderDir.value,
-    });
-    const response = await fetch(`/api/bills?${params}`);
-    if (!response.ok) throw new Error('Network payload resolution error');
-    if (id !== requestId) return;
-    billList.value = await response.json();
-  } catch (err: any) {
-    if (id !== requestId) return;
-    fetchError.value = err.message || 'An error occurred while fetching legislative data.';
-  } finally {
-    if (id === requestId) isLoading.value = false;
-  }
+  return `/api/bills?${params}`;
 }
 
 // UI -> route. Deep because BillFilters mutates nested fields.
@@ -114,8 +93,14 @@ watch(() => route.query, () => {
     orderField.value = field;
   }
   orderDir.value = route.query.orderDir === 'asc' ? 'asc' : 'desc';
-  loadFromRoute();
+  run(billsUrl());
 }, { immediate: true });
+
+async function loadMore() {
+  loadingMore.value = true;
+  await run(billsUrl(billList.value.length), { append: true });
+  loadingMore.value = false;
+}
 
 useHead({
   title: 'Browse Federal Bills & Legislation',
@@ -144,7 +129,7 @@ useHead({
       </Button>
       <div class="text-lg font-semibold">No Bills Found</div>
     </div>
-    <div class="flex flex-col divide-y px-4 lg:px-0">
+    <div class="flex flex-col divide-y px-4 lg:px-0" :class="isLoading ? 'animate-pulse' : ''">
       <BillCard v-for="bill in billList" :key="bill.packageid" :bill="bill" />
     </div>
     <div v-if="isLoading" class="py-6 w-full">
@@ -152,7 +137,7 @@ useHead({
         <Loader />
       </div>
     </div>
-    <div v-if="canLoadMore" class="w-full flex items-center">
+    <div v-if="hasMore" class="w-full flex items-center" @click="loadMore">
       <Button variant="secondary" class="my-4 w-5/6 mx-auto">Load More</Button>
     </div>
   </template>
