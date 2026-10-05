@@ -174,6 +174,14 @@ export default {
             inArray(provisions.provisionType, ['title', 'section', 'quoted-block']),
           )!);
         }
+        const q = url.searchParams.get('q')?.trim();
+        if (q) {
+          const pattern = `%${q.replace(/[%_\\]/g, '\\$&')}%`;
+          where.push(sql`(
+            regexp_replace(coalesce(${provisions.text}, ''), '<[^>]+>', '', 'g') ilike ${pattern}
+            or regexp_replace(coalesce(${provisions.header}, ''), '<[^>]+>', '', 'g') ilike ${pattern}
+          )`);
+        }
 
         const rows = await db.query.provisions.findMany({
           where: and(...where),
