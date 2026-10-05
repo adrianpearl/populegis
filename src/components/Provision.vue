@@ -3,7 +3,7 @@ import { useLastAppearedStore } from '../stores/lastAppeared.ts';
 import { ref, onMounted, watch, type PropType, computed, onUpdated } from 'vue';
 import { centeredHeader, type DisplayProvision, noHeaderTocDisplay, onlyChildrenTypes } from '../utils/index.ts';
 import { useIntersectionObserver, useClipboard } from '@vueuse/core'
-import { useLastVoteStore, VOTES, type Vote } from '../stores/lastVote.ts';
+import { useLastVoteStore, Vote } from '../stores/lastVote.ts';
 import { Button } from '@/components/ui/button';
 import { MoreVertical, Link, Check, Ban, List } from '@lucide/vue';
 import TableProvision from './TableProvision.vue';
@@ -18,7 +18,6 @@ const provisionMenu = ref<null | HTMLElement>(null);
 
 const isVisible = ref(false);
 const hovered = ref(false);
-const { AYE, NAY, NULL } = VOTES;
 
 // Use IntersectionObserver to detect when provision crosses the vertical center
 // rootMargin of -50% means trigger when element is at 50% from top (center)
@@ -136,7 +135,7 @@ watch(
 )
 
 const showMenu = ref(false);
-const currentVote = ref<Vote>(NULL);
+const currentVote = ref<Vote>(Vote.NULL);
 
 const onVote = (vote: Vote) => {
   currentVote.value = vote;
@@ -149,6 +148,9 @@ const onVote = (vote: Vote) => {
     lastVote.setState(props.provision.packageid, props.provision.location, vote);
   }
 }
+const NULL = Vote.NULL;
+const AYE = Vote.AYE;
+const NAY = Vote.NAY;
 
 // Process text with hyperlinks for legal references
 const processedText = computed(() => {
@@ -236,7 +238,7 @@ function indentLevelPadding(provision: DisplayProvision, isMobile: boolean) {
     <span v-else-if="!!provision.text" class="text font-serif-body" :innerHTML="processedText"></span>
     <div ref="provisionMenu"
       class="absolute left-0 top-0 h-full z-10 flex flex-col select-none pl-2 border-l-2 lg:border-l-3 py-0.5"
-      :class="[hovered || currentVote != NULL ? '' : 'hidden', currentVote == AYE ? 'border-emerald-400 dark:border-emerald-500' : currentVote == NAY ? 'border-red-400 dark:border-red-500' : 'border-muted-foreground/70']">
+      :class="[hovered || currentVote != Vote.NULL ? '' : 'hidden', currentVote == Vote.AYE ? 'border-emerald-400 dark:border-emerald-500' : currentVote == Vote.NAY ? 'border-red-400 dark:border-red-500' : 'border-muted-foreground/70']">
       <Button variant="ghost" :size="'icon-sm'" :class="[hovered ? '' : 'hidden']" @mouseover="() => showMenu = true">
         <component :is="MoreVertical"></component>
       </Button>
@@ -246,21 +248,21 @@ function indentLevelPadding(provision: DisplayProvision, isMobile: boolean) {
           @click="() => copy()">
           <component :is="Link"></component>
         </Button>
-        <Button v-if="currentVote === NULL" size="icon-sm" variant="ghostSuccess" @click="() => onVote(AYE)">
+        <Button v-if="currentVote === Vote.NULL" size="icon-sm" variant="ghostSuccess" @click="() => onVote(AYE)">
           <component :is="Check"></component>
         </Button>
-        <Button v-if="currentVote === NULL" size="icon-sm" variant="ghostDestructive" @click="() => onVote(NAY)">
+        <Button v-if="currentVote === Vote.NULL" size="icon-sm" variant="ghostDestructive" @click="() => onVote(NAY)">
           <component :is="Ban"></component>
         </Button>
       </div>
     </div>
     <div class="absolute right-full top-0 h-full z-10 flex flex-col select-none pr-2 py-0.5"
-      :class="[currentVote == NULL ? 'hidden' : '']">
+      :class="[currentVote == Vote.NULL ? 'hidden' : '']">
       <div @mouseover="() => showMenu = true">
-        <Button v-if="currentVote === AYE" size="icon-sm" variant="success" @click="() => onVote(NULL)">
+        <Button v-if="currentVote === Vote.AYE" size="icon-sm" variant="success" @click="() => onVote(NULL)">
           <component :is="Check"></component>
         </Button>
-        <Button v-if="currentVote === NAY" size="icon-sm" variant="destructive" @click="() => onVote(NULL)">
+        <Button v-if="currentVote === Vote.NAY" size="icon-sm" variant="destructive" @click="() => onVote(NULL)">
           <component :is="Ban"></component>
         </Button>
       </div>

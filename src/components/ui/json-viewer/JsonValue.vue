@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { MoreHorizontal, ChevronUp } from 'lucide-vue-next'
+import { MoreHorizontal, ChevronUp } from '@lucide/vue'
 import { cn } from '@/lib/utils'
 
 interface Props {

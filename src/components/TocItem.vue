@@ -107,7 +107,7 @@ watch(() => expanded.value, (newVal, oldVal) => {
 <template>
 <div class="flex flex-col font-serif">
   <RouterLink :to="`${basePath}/${props.provision.location}`" v-if="props.provision.header || noHeaderDisplay"
-    class="flex items-start font-light cursor-pointer hover:bg-zinc-800/5 dark:hover:bg-zinc-100/10 py-0.5 rounded-sm"
+    class="flex items-start font-light text-sm cursor-pointer hover:bg-zinc-800/5 dark:hover:bg-zinc-100/10 py-0.5 rounded-sm"
     :class="isAtRoute || isAtDescendantRoute ? 'text-primary font-semibold' : 'text-secondary-foreground'">
     <component :is="expanded ? ChevronDown : ChevronRight" :class="[expandable ? '' : 'invisible']"
       @click.prevent="() => userExpanded = !userExpanded" :size="16"

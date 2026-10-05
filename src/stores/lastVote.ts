@@ -1,13 +1,13 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const VOTES = {
+export const Vote = {
   NULL: 'null',
   AYE: 'up',
   NAY: 'down',
-} as const
+} as const;
 
-export type Vote = (typeof VOTES)[keyof typeof VOTES]
+export type Vote = (typeof Vote)[keyof typeof Vote];
 
 interface ProvisionVote {
   packageid: string;

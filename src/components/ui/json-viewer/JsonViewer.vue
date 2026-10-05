@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'  // ← shadcn-vue Input (add via `npx shadcn-vue add input` if missing)
-import { X } from 'lucide-vue-next'
+import { X } from '@lucide/vue'
 import JsonNode from './JsonNode.vue'
 
 interface Props {

@@ -94,9 +94,9 @@ export const centeredHeader = (provision: DisplayProvision) => provision.provisi
 export const onlyChildrenTypes = ['PACKAGE', 'resolution-body', 'legis-body', 'quoted-block', 'toc', 'toc-content', 'toc-entry', 'list', 'meta-legis-body'];
 export const resetIndentTypes = ['section', 'preamble'];
 
-export function provisionsDBtoDisplayChunk(dbProvisionsSorted: ProvisionRecord[], parentIndentLevel: number): DisplayProvision | undefined {
+export function provisionsDBtoDisplayChunk(dbProvisionsSorted: ProvisionRecord[], parentIndentLevel: number): DisplayProvision {
   const rootProvision = dbProvisionsSorted[0];
-  if (!rootProvision) return;
+  if (!rootProvision) throw Error("No valid provisions provided");
   const isOnlyChildren = onlyChildrenTypes.includes(rootProvision.provisionType ?? '');
   const shouldResetIndent = resetIndentTypes.includes(rootProvision.provisionType ?? '') && !rootProvision.provisionTag?.includes('quoted-block');
   const indentLevel = shouldResetIndent ? 3 : parentIndentLevel + 1;
@@ -156,6 +156,7 @@ function provisionFromXML(document: Node, packageid: string, location: number, p
     text: textNode ? serializer.serializeToString(textNode) : '',
     header: headerNode ? serializer.serializeToString(headerNode) : '',
     enum: enumNode ? serializer.serializeToString(enumNode) : '',
+    displayTag: ''
   }
 }
 

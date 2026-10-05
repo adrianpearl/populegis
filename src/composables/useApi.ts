@@ -1,8 +1,8 @@
 // src/composables/useApi.ts
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 
 export function useApi<T>(initial: T) {
-  const data = ref(initial) as { value: T };
+  const data = ref(initial) as Ref<T>;
   const isLoading = ref(false);
   const error = ref<string | null>(null);
   const hasMore = ref(false);

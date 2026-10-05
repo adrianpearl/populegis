@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { usePointerSwipe } from '@vueuse/core'
-import { ChevronRight, ChevronDown, Copy, Check } from 'lucide-vue-next'
+import { ChevronRight, ChevronDown, Copy, Check } from '@lucide/vue'
 import { cn } from '@/lib/utils'
 import JsonValue from './JsonValue.vue'
 

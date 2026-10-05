@@ -6,8 +6,8 @@ import postgres from 'postgres';
 import { bills, provisions } from '../src/db/schema';
 import * as schema from '../src/db/schema';
 import * as relations from '../src/db/relations';
-import { and, asc, desc, eq, ilike, inArray, or, lte, ne, sql, type SQL } from 'drizzle-orm';
-import type { BillSearch } from '../shared/bills';
+import { and, asc, desc, eq, ilike, inArray, or, lte, gte, ne, sql, type SQL } from 'drizzle-orm';
+import { BillSearch } from '../shared/bills';
 
 const ORDER_FIELDS = {
   dateIssued: bills.dateIssued,
@@ -192,6 +192,60 @@ export default {
         return new (globalThis as any).Response(JSON.stringify(rows), {
           headers: { 'Content-Type': 'application/json' },
         }) as unknown as CFResponse;
+      } catch (err: any) {
+        return new (globalThis as any).Response(JSON.stringify({
+          error: 'Database query failed',
+          details: err.message,
+        }), { status: 500 }) as unknown as CFResponse;
+      } finally {
+        ctx.waitUntil(queryClient.end());
+      }
+    }
+
+    // server/index.ts, next to the other /api routes
+    if (url.pathname === '/api/bill') {
+      const packageid = url.searchParams.get('packageid');
+      if (!packageid) {
+        return new (globalThis as any).Response(
+          JSON.stringify({ error: 'packageid is required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } },
+        ) as unknown as CFResponse;
+      }
+
+      const { queryClient, db } = createDb(env);
+      try {
+        const offset = Math.max(Number(url.searchParams.get('offset')) || 0, 0);
+        const limit = Math.min(Number(url.searchParams.get('limit')) || 250, 1000);
+
+        const bill = await db.query.bills.findFirst({
+          where: eq(bills.packageid, packageid),
+        });
+        if (!bill) {
+          return new (globalThis as any).Response(
+            JSON.stringify({ error: 'Not found' }),
+            { status: 404, headers: { 'Content-Type': 'application/json' } },
+          ) as unknown as CFResponse;
+        }
+
+        const [{ count }] = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(provisions)
+          .where(eq(provisions.packageid, packageid));
+
+        const rows = await db.query.provisions.findMany({
+          where: and(
+            eq(provisions.packageid, packageid),
+            gte(provisions.location, offset),
+            sql`${provisions.provisionTag} not ilike '%toc%'`,
+          ),
+          orderBy: [asc(provisions.location)],
+          limit,
+        });
+
+        return new (globalThis as any).Response(JSON.stringify({
+          bill: { ...bill, provisionCount: count },
+          provisions: rows,
+        }), { headers: { 'Content-Type': 'application/json' } }) as unknown as CFResponse;
       } catch (err: any) {
         return new (globalThis as any).Response(JSON.stringify({
           error: 'Database query failed',
