@@ -89,6 +89,7 @@ watch(() => expanded.value, (newVal, oldVal) => {
       packageid: props.provision.packageid,
       tag,
       toc: '1',
+      limit: '10000'
     });
     try {
       const response = await fetch(`/api/provisions?${params}`);
@@ -107,7 +108,7 @@ watch(() => expanded.value, (newVal, oldVal) => {
 <template>
 <div class="flex flex-col font-serif">
   <RouterLink :to="`${basePath}/${props.provision.location}`" v-if="props.provision.header || noHeaderDisplay"
-    class="flex items-start text-sm cursor-pointer hover:bg-zinc-800/5 dark:hover:bg-zinc-100/10 py-0.5 rounded-sm"
+    class="flex items-start text-sm cursor-pointer hover:bg-zinc-800/5 dark:hover:bg-zinc-100/10 pt-1 pb-0.5 pr-1.5 rounded-sm"
     :class="isAtRoute || isAtDescendantRoute ? 'text-foreground font-extrabold' : 'text-secondary-foreground'">
     <component :is="expanded ? ChevronDown : ChevronRight" :class="[expandable ? '' : 'invisible']"
       @click.prevent="() => userExpanded = !userExpanded" :size="16"

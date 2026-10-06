@@ -157,7 +157,7 @@ export default {
         const levelLte = url.searchParams.get('levelLte');
         const tag = url.searchParams.get('tag');
         const tocOnly = url.searchParams.get('toc') === '1';
-        const limit = Math.min(Number(url.searchParams.get('limit')) || 1000, 2000);
+        const limit = Math.min(Number(url.searchParams.get('limit')) || 1000, 10000);
 
         const where = [eq(provisions.packageid, packageid)];
         if (levelLte) where.push(lte(provisions.level, Number(levelLte)));
