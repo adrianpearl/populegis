@@ -108,7 +108,6 @@ watch([() => props.packageid, offset, limit, queryEnabled], () => {
     offset: String(offset.value),
     limit: String(limit.value),
   });
-  console.log('run', params);
   run(`/api/bill?${params}`);
 }, { immediate: true });
 
