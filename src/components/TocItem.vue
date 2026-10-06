@@ -107,11 +107,11 @@ watch(() => expanded.value, (newVal, oldVal) => {
 <template>
 <div class="flex flex-col font-serif">
   <RouterLink :to="`${basePath}/${props.provision.location}`" v-if="props.provision.header || noHeaderDisplay"
-    class="flex items-start font-light text-sm cursor-pointer hover:bg-zinc-800/5 dark:hover:bg-zinc-100/10 py-0.5 rounded-sm"
-    :class="isAtRoute || isAtDescendantRoute ? 'text-primary font-semibold' : 'text-secondary-foreground'">
+    class="flex items-start text-sm cursor-pointer hover:bg-zinc-800/5 dark:hover:bg-zinc-100/10 py-0.5 rounded-sm"
+    :class="isAtRoute || isAtDescendantRoute ? 'text-foreground font-extrabold' : 'text-secondary-foreground'">
     <component :is="expanded ? ChevronDown : ChevronRight" :class="[expandable ? '' : 'invisible']"
       @click.prevent="() => userExpanded = !userExpanded" :size="16"
-      class="m-1 shrink-0 text-muted-foreground hover:text-secondary-foreground" />
+      class="m-1 mt-0.5 shrink-0 text-muted-foreground hover:text-secondary-foreground" />
     <span v-if="provision.provisionTag?.includes('quoted-block')">&quot;&nbsp;</span>
     <div v-if="noHeaderDisplay && props.provision.provisionType">{{ toTitleCase(props.provision.provisionType) }}&nbsp;
     </div>

@@ -151,7 +151,7 @@ async function copyValue() {
 
     <div class="flex-1 min-w-0 mt-0.5">
       <div class="flex items-baseline gap-2 flex-wrap min-w-0">
-        <span class="text-secondary-foreground font-semibold break-words min-w-0 text-xs">{{ name }}:</span>
+        <span class="text-secondary-foreground font-semibold wrap-break-word min-w-0 text-xs">{{ name }}:</span>
 
         <template v-if="!isExpandable">
           <JsonValue :value="value" :type="type" />
@@ -171,7 +171,7 @@ async function copyValue() {
       </div>
     </div>
 
-    <div class="shrink-0 w-[22px] h-[22px] rounded hover:bg-accent flex items-center justify-center">
+    <div class="shrink-0 w-5.5 h-5.5 rounded hover:bg-accent flex items-center justify-center">
       <button v-if="isDirectlyHovered" @click="copyValue" class="text-muted-foreground hover:text-foreground">
         <Check v-if="copied" :size="14" class="text-green-500" />
         <Copy v-else :size="14" />
