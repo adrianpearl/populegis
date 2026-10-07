@@ -10,7 +10,7 @@ import { govinfo } from './routes/govinfo';
 interface Env {
   HYPERDRIVE: Hyperdrive;
   GOVINFO_API_KEY: string;
-  ASSETS: Fetcher;
+  SITE: Fetcher;
 }
 
 const app = new Hono<{ Bindings: Env }>().basePath('/api');
@@ -29,8 +29,8 @@ export default {
       const { queryClient, db } = createDb(env.HYPERDRIVE);
       try {
         const item = await db.query.bills.findFirst({ where: eq(bills.packageid, match[1]) });
-        if (!item) return env.ASSETS.fetch(request) as unknown as CFResponse;
-        const assetResponse = await env.ASSETS.fetch(request);
+        if (!item) return fetch(request) as unknown as CFResponse;
+        const assetResponse = await fetch(request);
         return (new HTMLRewriter() as CFHTMLRewriter)
           .on('head', {
             element(el) {
@@ -44,13 +44,13 @@ export default {
           })
           .transform(assetResponse) as unknown as CFResponse;
       } catch {
-        return env.ASSETS.fetch(request) as unknown as CFResponse;
+        return fetch(request) as unknown as CFResponse;
       } finally {
         ctx.waitUntil(queryClient.end());
       }
     }
 
     if (url.pathname.startsWith('/api/')) return app.fetch(request, env, ctx);
-    return env.ASSETS.fetch(request) as unknown as CFResponse;
+    return env.SITE.fetch(request);
   },
 };
