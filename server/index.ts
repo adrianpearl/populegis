@@ -6,6 +6,7 @@ import { bills } from '../src/db/schema';
 import { createDb } from './db';
 import { publicApi } from './routes/public';
 import { govinfo } from './routes/govinfo';
+import { admin } from './routes/admin';
 
 interface Env {
   HYPERDRIVE: Hyperdrive;
@@ -16,6 +17,7 @@ interface Env {
 const app = new Hono<{ Bindings: Env }>().basePath('/api');
 app.route('/', publicApi);
 app.route('/admin/govinfo', govinfo);
+app.route('/admin', admin);
 
 const BOT_AGENTS = ['applebot', 'facebot', 'facebookexternalhit', 'twitterbot', 'slackbot', 'discordbot'];
 
