@@ -1,5 +1,8 @@
-// src/composables/useApi.ts
 import { ref, type Ref } from 'vue';
+
+type Entry = { body: unknown; hasMore: boolean; at: number };
+const cache = new Map<string, Entry>();
+const TTL_MS = 600_000;
 
 export function useApi<T>(initial: T) {
   const data = ref(initial) as Ref<T>;
@@ -10,19 +13,29 @@ export function useApi<T>(initial: T) {
 
   async function run(url: string, opts?: { append?: boolean }) {
     const id = ++requestId;
+    if (!opts?.append) {
+      const hit = cache.get(url);
+      if (hit && Date.now() - hit.at < TTL_MS) {
+        data.value = hit.body as T;
+        hasMore.value = hit.hasMore;
+        error.value = null;
+        return;
+      }
+    }
+
     isLoading.value = true;
     error.value = null;
     try {
       const response = await fetch(url);
       const body = await response.json().catch(() => null);
-      if (!response.ok) {
-        throw new Error(body?.details || body?.error || response.statusText);
-      }
+      if (!response.ok) throw new Error(body?.details || body?.error || response.statusText);
       if (id !== requestId) return;
-      data.value = (opts?.append && Array.isArray(data.value) && Array.isArray(body)
+      const next = opts?.append && Array.isArray(data.value) && Array.isArray(body)
         ? [...data.value, ...body]
-        : body) as T;
+        : body;
+      data.value = next as T;
       hasMore.value = response.headers.get('X-Has-More') === 'true';
+      if (!opts?.append) cache.set(url, { body, hasMore: hasMore.value, at: Date.now() });
     } catch (err: any) {
       if (id !== requestId) return;
       error.value = err?.message || 'Request failed';

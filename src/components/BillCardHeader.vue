@@ -4,6 +4,29 @@ import billVersions from '../utils/billVersions.json';
 import Tooltip from './Tooltip.vue';
 import { type Bill } from '@/views/HomeView.vue';
 import { Badge } from './ui/badge';
+import { ArrowRightLeft, BadgeCheck, Gavel, ClipboardList, Inbox, GitCompare, PenTool } from '@lucide/vue';
+
+const VERSION_ICON = {
+  introduced: Inbox,
+  reported: ClipboardList,
+  passedOne: Gavel,
+  otherChamber: ArrowRightLeft,
+  resolving: GitCompare,
+  enrolled: PenTool,
+  law: BadgeCheck,
+} as const;
+
+function versionGroup(packageid: string) {
+  if (packageid.startsWith('PLAW-')) return 'law';
+  const suffix = packageid.match(/[a-z]+$/)?.[0] ?? '';
+  if (suffix === 'ih' || suffix === 'is') return 'introduced';
+  if (suffix === 'rh' || suffix === 'rs') return 'reported';
+  if (suffix === 'eh' || suffix === 'es') return 'passedOne';
+  if (suffix === 'rfh' || suffix === 'rfs' || suffix === 'pcs') return 'otherChamber';
+  if (suffix === 'eah' || suffix === 'eas') return 'resolving';
+  if (suffix === 'enr') return 'enrolled';
+  return 'introduced';
+}
 
 type BillHeaderType = 'main' | 'sub';
 
@@ -43,7 +66,8 @@ const billVersionInfo = computed(() =>
   </div>
   <div v-else-if="headerType === 'sub'" class="text-secondary-foreground dark:text-muted-foreground">
     <div class="flex gap-2 items-center flex-wrap">
-      <span v-if="billVersionInfo?.version">
+      <span v-if="billVersionInfo?.version" class="flex gap-2 items-center text-primary">
+        <component :is="VERSION_ICON[versionGroup(bill.packageid)]" class="size-4 text-xs" />
         {{ billVersionInfo.version }}
       </span>
       <span>{{ new Date(bill.dateIssued).toDateString() }}</span>
