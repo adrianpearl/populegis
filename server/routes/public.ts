@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import type { Hyperdrive } from '@cloudflare/workers-types';
 import { and, asc, desc, eq, gte, ilike, inArray, lte, ne, or, sql, type SQL } from 'drizzle-orm';
-import { bills, provisions } from '../../src/db/schema';
+import { bills, provisions, users, votes } from '../../src/db/schema';
 import { BillSearch } from '../../shared/bills';
 import { createDb } from '../db';
 
@@ -138,6 +138,52 @@ publicApi.get('/bill', async (c) => {
     return c.json({ bill: { ...bill, provisionCount: count }, provisions: rows });
   } catch (err: any) {
     return c.json({ error: 'Database query failed', details: err.message }, 500);
+  } finally {
+    c.executionCtx.waitUntil(queryClient.end());
+  }
+});
+
+publicApi.get('/users/:username/votes', async (c) => {
+  const username = c.req.param('username');
+  const { queryClient, db } = createDb(c.env.HYPERDRIVE);
+  try {
+    const user = await db.query.users.findFirst({
+      where: eq(users.username, username),
+      columns: { id: true, firstname: true, lastname: true, state: true, district: true },
+    });
+    if (!user) return c.json({ error: 'Not found' }, 404);
+
+    const filters = readFilters(c.req.query('filters'));
+    const orderKey = c.req.query('orderField');
+    const orderColumn = ORDER_FIELDS[orderKey as keyof typeof ORDER_FIELDS] ?? bills.dateIssued;
+    const direction = c.req.query('orderDir') === 'asc' ? asc : desc;
+    const limit = Math.min(Number(c.req.query('limit')) || 10, 50);
+    const offset = Math.max(Number(c.req.query('offset')) || 0, 0);
+
+    const where: SQL[] = [eq(votes.userId, user.id)];
+    // same filter pushes as /api/bills, against bills.*
+    const rows = await db
+      .select({ bill: bills, location: votes.location, voteOption: votes.voteOption, provision: provisions })
+      .from(votes)
+      .innerJoin(bills, eq(votes.packageid, bills.packageid))
+      .leftJoin(provisions, and(eq(provisions.packageid, votes.packageid), eq(provisions.location, votes.location)))
+      .where(and(...where))
+      .orderBy(direction(orderColumn), asc(votes.location))
+      .limit(limit + 1)
+      .offset(offset);
+
+    const grouped = new Map<string, any>();
+    for (const row of rows) {
+      const item = grouped.get(row.bill.packageid) ?? { ...row.bill, vote: null, subprovisionVotes: [] };
+      if (row.location === 0) item.vote = row.voteOption;
+      else item.subprovisionVotes.push({ location: row.location, voteOption: row.voteOption, provision: row.provision });
+      grouped.set(row.bill.packageid, item);
+    }
+    const list = [...grouped.values()];
+    c.header('X-Has-More', String(list.length > limit));
+    return c.json({ user, bills: list.slice(0, limit) });
+  } catch (err: any) {
+    return c.json({ error: 'Database query failed', details: err.cause?.message ?? err.message }, 500);
   } finally {
     c.executionCtx.waitUntil(queryClient.end());
   }

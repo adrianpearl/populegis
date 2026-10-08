@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Bill from '@/views/Bill.vue'
 import Admin from '@/views/Admin.vue'
+import VoteList from '../views/VoteList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +25,11 @@ const router = createRouter({
         packageid: `BILLS-${route.params.slug}`,
         location: route.params.location ? Number(route.params.location) : undefined
       })
+    },
+    {
+      path: '/profile/:username',
+      name: 'person',
+      component: VoteList,
     },
   ],
 })

@@ -1,4 +1,5 @@
 import { ref, type Ref } from 'vue';
+import { toast } from 'vue-sonner';
 
 type Entry = { body: unknown; hasMore: boolean; at: number };
 const cache = new Map<string, Entry>();
@@ -39,6 +40,9 @@ export function useApi<T>(initial: T) {
     } catch (err: any) {
       if (id !== requestId) return;
       error.value = err?.message || 'Request failed';
+      toast.error('Request Failed', {
+        description: err?.message
+      })
     } finally {
       if (id === requestId) isLoading.value = false;
     }

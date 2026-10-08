@@ -15,7 +15,7 @@ import type { BillSearch } from '../../shared/bills';
 
 defineProps({ mobile: Boolean });
 
-const search = defineModel<BillSearch>({ required: true });
+const search = defineModel<Partial<BillSearch>>({ required: true });
 const currentFilter = ref<string>();
 const titleQuery = ref(search.value.title ?? '');
 
@@ -44,13 +44,13 @@ function selectedGroups(values: string[], groups: Record<string, string[]>) {
 }
 
 const selectedTypeGroups = computed({
-  get: () => selectedGroups(search.value.billTypes, billTypeGroups),
+  get: () => selectedGroups(search.value.billTypes ?? [], billTypeGroups),
   set: (names: string[]) => {
     search.value = { ...search.value, billTypes: names.flatMap((name) => billTypeGroups[name] ?? []) };
   },
 });
 const selectedVersionGroups = computed({
-  get: () => selectedGroups(search.value.versions, versionGroups),
+  get: () => selectedGroups(search.value.versions ?? [], versionGroups),
   set: (names: string[]) => {
     search.value = { ...search.value, versions: names.flatMap((name) => versionGroups[name] ?? []) };
   },
