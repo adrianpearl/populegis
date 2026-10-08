@@ -4,26 +4,35 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "populegis-api",
-	"compatibility_flags": ["nodejs_compat"],
+	"name": "popui",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"compatibility_date": "2026-10-01",
-	"main": "server/index.ts",
+	"main": "server/admin.ts",
 	"observability": {
 		"enabled": true
 	},
 	"upload_source_maps": true,
 	"hyperdrive": [
 		{
-			"binding": "HYPERDRIVE",
+			"binding": "DB_WRITE",
 			"id": "da1f9f3c95e54500999220d9a2deec18"
+		},
+		{
+			"binding": "HYPERDRIVE",
+			"id": "ae58d4f7a9894f4eab10e72a2befecc6"
 		}
 	],
 	"assets": {
-    "directory": "./dist",
-    "binding": "SITE",
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/item/*"]
-  }
+		"directory": "./dist",
+		"binding": "SITE",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": [
+			"/api/*",
+			"/item/*"
+		]
+	}
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

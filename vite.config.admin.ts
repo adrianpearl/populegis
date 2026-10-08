@@ -12,7 +12,7 @@ export default defineConfig({
 	plugins: [
 		vue(),
 		vueDevTools(),
-		cloudflare(),
+		cloudflare({ configPath: 'wrangler.admin.jsonc' }),
 		tailwindcss()
 	],
 	resolve: {

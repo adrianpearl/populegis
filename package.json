@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --config vite.config.public.ts",
+    "dev:admin": "vite --config vite.config.admin.ts",
+    "deploy": "wrangler deploy --config wrangler.public.jsonc",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "npm run build && wrangler dev",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {

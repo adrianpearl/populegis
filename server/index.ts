@@ -1,58 +1,9 @@
 // server/index.ts
-import type { Fetcher, HTMLRewriter as CFHTMLRewriter, Response as CFResponse, Hyperdrive } from '@cloudflare/workers-types';
-import { Hono } from 'hono';
-import { eq } from 'drizzle-orm';
-import { bills } from '../src/db/schema';
-import { createDb } from './db';
-import { publicApi } from './routes/public';
-import { govinfo } from './routes/govinfo';
-import { admin } from './routes/admin';
-
-interface Env {
-  HYPERDRIVE: Hyperdrive;
-  GOVINFO_API_KEY: string;
-  SITE: Fetcher;
-}
-
-const app = new Hono<{ Bindings: Env }>().basePath('/api');
-app.route('/', publicApi);
-app.route('/admin/govinfo', govinfo);
-app.route('/admin', admin);
-
-const BOT_AGENTS = ['applebot', 'facebot', 'facebookexternalhit', 'twitterbot', 'slackbot', 'discordbot'];
+import { handleRequest } from './app';
+import type { PublicEnv } from './env';
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    const url = new URL(request.url);
-    const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
-    const match = url.pathname.match(/^\/item\/([^/]+)/);
-
-    if (match && BOT_AGENTS.some((bot) => userAgent.includes(bot))) {
-      const { queryClient, db } = createDb(env.HYPERDRIVE);
-      try {
-        const item = await db.query.bills.findFirst({ where: eq(bills.packageid, match[1]) });
-        if (!item) return fetch(request) as unknown as CFResponse;
-        const assetResponse = await fetch(request);
-        return (new HTMLRewriter() as CFHTMLRewriter)
-          .on('head', {
-            element(el) {
-              const titleText = item.shortTitle || item.officialTitle;
-              el.append(`<meta property="og:title" content="${titleText}" />`, { html: true });
-              const descText = item.version ? `Version: ${item.version}` : 'Legislative tracking overview.';
-              el.append(`<meta property="og:description" content="${descText}" />`, { html: true });
-              el.append(`<meta property="og:type" content="website" />`, { html: true });
-              el.append(`<meta name="twitter:card" content="summary_large_image" />`, { html: true });
-            },
-          })
-          .transform(assetResponse) as unknown as CFResponse;
-      } catch {
-        return fetch(request) as unknown as CFResponse;
-      } finally {
-        ctx.waitUntil(queryClient.end());
-      }
-    }
-
-    if (url.pathname.startsWith('/api/')) return app.fetch(request, env, ctx);
-    return env.SITE.fetch(request);
+  fetch(request: Request, env: PublicEnv, ctx: ExecutionContext) {
+    return handleRequest(request, env, ctx);
   },
 };
