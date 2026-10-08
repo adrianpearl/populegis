@@ -19,16 +19,16 @@ const props = defineProps<ToasterProps>()
     v-bind="props"
   >
     <template #success-icon>
-      <CircleCheckIcon class="size-4" />
+      <CircleCheckIcon class="size-4 text-success" />
     </template>
     <template #info-icon>
-      <InfoIcon class="size-4" />
+      <InfoIcon class="size-4 text-blue-600" />
     </template>
     <template #warning-icon>
-      <TriangleAlertIcon class="size-4" />
+      <TriangleAlertIcon class="size-4 text-amber-500" />
     </template>
     <template #error-icon>
-      <OctagonXIcon class="size-4" />
+      <OctagonXIcon class="size-4 text-destructive" />
     </template>
     <template #loading-icon>
       <div>
@@ -36,7 +36,17 @@ const props = defineProps<ToasterProps>()
       </div>
     </template>
     <template #close-icon>
-      <XIcon class="size-4" />
+      <XIcon class="size-4 text-muted-foreground" />
     </template>
   </Sonner>
 </template>
+
+<style>
+[data-sonner-toast][data-styled="true"] [data-description] {
+  color:var(--color-muted-foreground)
+}
+
+[data-sonner-toast][data-styled="true"] [data-close-button] {
+  border: none;
+}
+</style>

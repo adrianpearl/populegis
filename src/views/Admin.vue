@@ -7,6 +7,7 @@ import Loader from '@/components/Loader.vue';
 import { JsonViewer } from '@/components/ui/json-viewer';
 import { modifyXML, xmlRootProvision, provisionsXMLtoDB, type BillSummary } from '@/utils';
 import type { ProvisionRecord } from '../../shared/provisions.ts';
+import { toast } from "vue-sonner";
 
 type StatusTitle = { titleType: string; title: string };
 type StatusBill = {
@@ -46,7 +47,7 @@ async function loadModified(reset = false) {
     packages.value = packages.value.concat(body.packages ?? []);
     offsetMark.value = body.nextOffsetMark ?? '';
   } catch (err: any) {
-    error.value = err.message;
+    toast.error(err.message);
   } finally {
     loadingList.value = false;
   }
@@ -100,13 +101,21 @@ async function upsertBill() {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ bill, provisions }),
-  }).then((value) => {
-    loadingUpsert.value = false;
-    upsertButtonText.value = `${value.status}`;
+  }).then((response) => {
+    if (!response.ok) {
+      // Pass the status text or status code downstream
+      throw new Error(`Server responded with status ${response.status}`);
+    }
+    return response;
+  }).then(() => {
+    toast.success('Bill upserted.', {
+      closeButton: true,
+    })
   }).catch((error) => {
-    loadingUpsert.value = false;
-    upsertButtonText.value = `${error}`;
-  });
+    toast.error('Error', {
+      description: error
+    })
+  }).finally(() => { loadingUpsert.value = false; });
 }
 
 async function openPackage(packageId: string) {

@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { ref } from 'vue'
+import 'vue-sonner/style.css'
+import { Toaster } from '@/components/ui/sonner'
 
-const name = ref('Unknown')
-
-const getName = async () => {
-  const res = await fetch('/api/')
-  const data = await res.json()
-  name.value = data.name
-}
 </script>
 
 <template>
   <RouterView />
+  <Toaster />
 </template>
