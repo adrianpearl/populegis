@@ -20,6 +20,7 @@ import ProvisionChip from '@/components/ProvisionChip.vue';
 import { useApi } from '@/composables/useApi';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { bills, provisions as provisionsTable } from '../db/schema';
+import Tooltip from '@/components/Tooltip.vue';
 
 const props = defineProps({
   packageid: {
@@ -299,10 +300,11 @@ useHead({
         <div class="font-semibold w-full xl:w-fit">{{ currentItem }}</div>
         <div class="flex flex-wrap items-stretch gap-0.5">
           <ToggleGroup class="flex gap-0.5" v-model="currentItem">
-            <ToggleGroupItem class="size-9 rounded-md" v-for="(item, i) of items" :value="item"
-              :aria-label="'Toggle ' + item" v-tooltip="item">
-              <component :is="icons[i]"></component>
-            </ToggleGroupItem>
+            <Tooltip v-for="(item, i) of items" :content="item">
+              <ToggleGroupItem class="size-9 rounded-md" :value="item" :aria-label="'Toggle ' + item">
+                <component :is="icons[i]"></component>
+              </ToggleGroupItem>
+            </Tooltip>
           </ToggleGroup>
           <div class="w-px bg-border mx-1"></div>
           <Button size="icon" :variant="currentVote === Vote.AYE ? 'success' : 'ghostSuccess'"

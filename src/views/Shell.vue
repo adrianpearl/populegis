@@ -57,8 +57,7 @@ const showMenu = ref(false);
               <Menu />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent :align="'start'"
-            class="w-dvw border-none rounded-none px-2 py-3">
+          <DropdownMenuContent :align="'start'" class="w-dvw border-none rounded-none px-2 py-3">
             <DropdownMenuItem as-child>
               <router-link :to="'/'">
                 <Button class="w-full justify-start" variant="ghost">
@@ -173,18 +172,23 @@ const showMenu = ref(false);
     </div>
     <div class="flex">
       <router-link :to="'/governance'" class="lg:hidden">
-        <span v-tooltip="'Governance / Privacy'"
-          :class="$route.name == '/governance' ? 'bg-zinc-900/5 dark:text-zinc-200 dark:bg-zinc-100/10' : 'hover:bg-zinc-900/5 active:bg-zinc-900/10 dark:text-zinc-300 dark:hover:bg-zinc-100/10 dark:active:bg-zinc-100/20'"
-          class="material-symbols-outlined filled text-gray-800 rounded-sm size-8 p-1">
-          history_edu
-        </span>
+        <Tooltip content="Governance / Privacy">
+          <span
+            :class="$route.name == '/governance' ? 'bg-zinc-900/5 dark:text-zinc-200 dark:bg-zinc-100/10' : 'hover:bg-zinc-900/5 active:bg-zinc-900/10 dark:text-zinc-300 dark:hover:bg-zinc-100/10 dark:active:bg-zinc-100/20'"
+            class="material-symbols-outlined filled text-gray-800 rounded-sm size-8 p-1">
+            history_edu
+          </span>
+        </Tooltip>
+
       </router-link>
       <router-link :to="'/governance'" class="hidden lg:block">
-        <span v-tooltip="'Governance / Privacy'"
-          :class="$route.name == '/governance' ? 'bg-zinc-900/5 dark:text-zinc-200 dark:bg-zinc-100/10' : 'hover:bg-zinc-900/5 active:bg-zinc-900/10 dark:text-zinc-300 dark:hover:bg-zinc-100/10 dark:active:bg-zinc-100/20'"
-          class="material-symbols-outlined large filled text-gray-800 rounded-sm size-11 p-1">
-          history_edu
-        </span>
+        <Tooltip content="Governance / Privacy">
+          <span
+            :class="$route.name == '/governance' ? 'bg-zinc-900/5 dark:text-zinc-200 dark:bg-zinc-100/10' : 'hover:bg-zinc-900/5 active:bg-zinc-900/10 dark:text-zinc-300 dark:hover:bg-zinc-100/10 dark:active:bg-zinc-100/20'"
+            class="material-symbols-outlined large filled text-gray-800 rounded-sm size-11 p-1">
+            history_edu
+          </span>
+        </Tooltip>
       </router-link>
       <div class="hidden xl:flex flex-col">
         <router-link to="/governance" class="h-5">

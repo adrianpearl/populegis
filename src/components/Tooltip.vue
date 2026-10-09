@@ -1,17 +1,26 @@
-<!-- components/ui/Tooltip.vue -->
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useFloating, flip, shift, offset } from '@floating-ui/vue'
+import type { Placement } from '@floating-ui/vue'
 
-defineProps<{ content: string }>()
+// Define props with an optional placement restricted to Floating UI types
+const props = withDefaults(
+  defineProps<{
+    content: string
+    placement?: Placement
+  }>(),
+  {
+    placement: 'bottom',
+  }
+)
 
 const reference = ref(null)
 const floating = ref(null)
 const isVisible = ref(false)
 
-// Floating UI tracks the placement math dynamically in the browser
+// Pass the prop directly using a getter function for standard Vue reactivity
 const { floatingStyles } = useFloating(reference, floating, {
-  placement: 'right',
+  placement: () => props.placement,
   middleware: [offset(8), flip(), shift()],
 })
 </script>

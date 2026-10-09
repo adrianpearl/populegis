@@ -11,6 +11,7 @@ import SmsSignupAssistant from './SmsSignupAssistant.vue';
 import SmsExampleFlow from './SmsExampleFlow.vue';
 import { toast } from "vue-sonner";
 import { getBillBasePath } from '@/utils/billPath';
+import Tooltip from '@/components/Tooltip.vue';
 
 const lastAppearedStore = useLastAppearedStore();
 const provisionRef = ref<null | HTMLElement>(null);
@@ -243,11 +244,11 @@ function indentLevelPadding(provision: DisplayProvision, isMobile: boolean) {
         <component :is="MoreVertical"></component>
       </Button>
       <div v-if="showMenu" class="flex flex-col gap-1">
-        <Button v-if="clipboardSupported" variant="ghost" :size="'icon-sm'"
-          v-tooltip.right="{ content: copied ? '📋 URL Copied' : 'Copy URL', hideTriggers: ['hover'] }"
-          @click="() => copy()">
-          <component :is="Link"></component>
-        </Button>
+        <Tooltip :content="copied ? '📋 URL Copied' : 'Copy URL'">
+          <Button v-if="clipboardSupported" variant="ghost" :size="'icon-sm'" @click="() => copy()">
+            <component :is="Link"></component>
+          </Button>
+        </Tooltip>
         <Button v-if="currentVote === Vote.NULL" size="icon-sm" variant="ghostSuccess" @click="() => onVote(AYE)">
           <component :is="Check"></component>
         </Button>
