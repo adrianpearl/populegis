@@ -41,6 +41,7 @@ publicApi.get('/bills', async (c) => {
     const offset = Math.max(Number(c.req.query('offset')) || 0, 0);
 
     const where: SQL[] = [];
+    where.push(sql`${bills.form} is not null and ${bills.form} <> ''`);
     if (filters.congress?.length) where.push(inArray(bills.congress, filters.congress));
     if (filters.originChamber) where.push(sql`lower(${bills.originChamber}) = lower(${filters.originChamber})`);
     if (filters.billTypes?.length) where.push(inArray(bills.billType, filters.billTypes.map((t) => t.toLowerCase())));
@@ -53,6 +54,19 @@ publicApi.get('/bills', async (c) => {
     }
     if (filters.versions?.length) where.push(inArray(bills.version, filters.versions));
     if (filters.sponsorName) where.push(sql`${bills.sponsor}::text ilike ${like(filters.sponsorName)}`);
+    if (filters.appropriationsOnly) {
+      where.push(sql`exists (
+        select 1 from provisions p
+        where p.packageid = ${bills.packageid}
+          and p.provision_type ~* 'appropriations'
+      )`);
+    }
+    if (filters.policyArea) {
+      where.push(sql`${bills.status} @> cast(${JSON.stringify({ policyArea: { name: filters.policyArea } })} as jsonb)`);
+    }
+    if (filters.legislativeSubject) {
+      where.push(sql`${bills.status} @> cast(${JSON.stringify({ subjects: { legislativeSubjects: [{ name: filters.legislativeSubject }] } })} as jsonb)`);
+    }
 
     const rows = await db.query.bills.findMany({
       where: where.length ? and(...where) : undefined,
