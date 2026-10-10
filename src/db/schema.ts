@@ -1,4 +1,4 @@
-import { pgTable, index, varchar, jsonb, timestamp, unique, text, integer, date, foreignKey, serial, check, primaryKey, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, varchar, jsonb, timestamp, text, date, unique, integer, foreignKey, serial, check, primaryKey, pgView, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const chamber = pgEnum("chamber", ['SENATE', 'HOUSE'])
@@ -15,6 +15,13 @@ export const smsSessions = pgTable("sms_sessions", {
 }, (table) => [
 	index("idx_sms_sessions_expires_at").using("btree", table.expiresAt.asc().nullsLast().op("timestamptz_ops")),
 ]);
+
+export const governanceDocuments = pgTable("governance_documents", {
+	slug: text().primaryKey().notNull(),
+	title: text().notNull(),
+	adoptedAt: date("adopted_at"),
+	body: text(),
+});
 
 export const bills = pgTable("bills", {
 	packageid: text().primaryKey().notNull(),
@@ -99,6 +106,7 @@ export const votes = pgTable("votes", {
 	userId: integer("user_id").notNull(),
 	location: integer().notNull(),
 	packageid: text().notNull(),
+	documentId: text("document_id").notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.location, table.packageid],
@@ -110,6 +118,11 @@ export const votes = pgTable("votes", {
 			foreignColumns: [users.id],
 			name: "fk_vote_user"
 		}).onUpdate("restrict"),
+	foreignKey({
+			columns: [table.location, table.documentId],
+			foreignColumns: [provisions.location, provisions.documentId],
+			name: "votes_provision_document_fk"
+		}),
 	unique("votes_unique_provision_user").on(table.userId, table.location, table.packageid),
 ]);
 
@@ -145,12 +158,15 @@ export const provisions = pgTable("provisions", {
 	text: text(),
 	provisionTag: text("provision_tag"),
 	displayTag: text("display_tag"),
+	documentId: text("document_id").notNull(),
+	documentKind: text("document_kind").notNull(),
 }, (table) => [
-	foreignKey({
-			columns: [table.packageid],
-			foreignColumns: [bills.packageid],
-			name: "provisions_packageid_fkey"
-		}),
 	primaryKey({ columns: [table.packageid, table.location], name: "provisions_pkey"}),
 	unique("provisions_packageid_provision_tag_key").on(table.packageid, table.provisionTag),
+	unique("provisions_document_loc_key").on(table.location, table.documentId),
+	check("provisions_document_kind_chk", sql`document_kind = ANY (ARRAY['bill'::text, 'meta'::text])`),
 ]);
+export const smsSessionsRedacted = pgView("sms_sessions_redacted", {	sessionType: varchar("session_type"),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
+	expiresAt: timestamp("expires_at", { withTimezone: true, mode: 'string' }),
+}).as(sql`SELECT sms_sessions.session_type, sms_sessions.created_at, sms_sessions.expires_at FROM sms_sessions`);

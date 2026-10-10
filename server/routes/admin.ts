@@ -12,17 +12,24 @@ admin.put('/bills/:packageid', async (c) => {
   const body = await c.req.json<{ bill: typeof bills.$inferInsert; provisions: (typeof provisions.$inferInsert)[] }>();
   if (body.bill?.packageid !== packageid) return c.json({ error: 'packageid mismatch' }, 400);
 
+  const kind = packageid.startsWith('META-') ? 'meta' : 'bill';
+  const provisionRows = body.provisions.map((row) => ({
+    ...row,
+    documentId: packageid,
+    documentKind: kind,
+  }));
+
   const { queryClient, db } = createDb(c.env.DB_WRITE);
   try {
     await db.transaction(async (tx) => {
       await tx.delete(provisions).where(eq(provisions.packageid, packageid));
       await tx.delete(bills).where(eq(bills.packageid, packageid));
       await tx.insert(bills).values(body.bill);
-      for (let i = 0; i < body.provisions.length; i += 500) {
-        await tx.insert(provisions).values(body.provisions.slice(i, i + 500));
+      for (let i = 0; i < provisionRows.length; i += 500) {
+        await tx.insert(provisions).values(provisionRows.slice(i, i + 500));
       }
     });
-    return c.json({ packageid, provisions: body.provisions.length });
+    return c.json({ packageid, provisions: provisionRows.length });
   } catch (err: any) {
     return c.json({ error: 'Upload failed', details: err.message }, 500);
   } finally {
