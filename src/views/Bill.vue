@@ -15,8 +15,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { List, FileSearch, Route, ListTree, Check, Ban, X, Vote as VoteIcon } from '@lucide/vue';
 import { toast } from 'vue-sonner';
 import { useHead } from '@unhead/vue';
-import Provision from '@/components/Provision.vue';
-import ProvisionChip from '@/components/ProvisionChip.vue';
+import Document from '@/components/Document.vue';
 import { useApi } from '@/composables/useApi';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { bills, provisions as provisionsTable } from '../db/schema';
@@ -228,54 +227,19 @@ useHead({
     </div>
   </template>
   <template v-slot:main>
-    <div class="h-full" :class="{ 'opacity-70 animate-pulse': loading }">
-      <Loader v-if="loading && !lastResult" />
-      <div v-if="lastResult?.bill && (form || provisions)">
-        <div class="hidden fixed top-14 w-full border-y dark:border-zinc-900 z-20">
-          <div class="flex gap-2 items-stretch min-w-0 h-10 px-4 py-3 bg-background/90">
-            <span class="font-semibold text-xs whitespace-nowrap">{{ bill?.billType }} {{ bill?.number }}</span>
-            <span v-if="bill?.shortTitle" class="text-xs">|</span>
-            <span v-if="bill?.shortTitle"
-              class="font-normal font-serif text-sm whitespace-nowrap text-ellipsis overflow-hidden">{{
-                bill.shortTitle
-              }}</span>
-          </div>
+    <Document :document-id="packageid" :provisions="provisions ?? []" :provision-count="bill?.provisionCount ?? 0"
+      :location="location" :loading="loading" :current-vote="currentVote" @load-more="limit += 100"
+      @load-previous="backset += 50" @vote="onVote">
+      <template #header>
+        <div v-if="bill" class="relative mb-16 px-6 pt-20 space-y-2">
+          <div class="font-serif text-3xl lg:text-5xl">{{ bill.shortTitle }}</div>
+          <BillCardHeader header-type="sub" :bill="bill" />
         </div>
-        <div v-if="bill" class="relative mb-16 lg:mt-0 z-20 lg:z-0 px-6 pt-20 space-y-2 bg-background">
-          <BillCardHeader :header-type="'main'" :bill="bill" class="text-sm hidden" />
-          <div class="font-serif text-3xl lg:text-5xl">
-            {{ bill.shortTitle }}
-          </div>
-          <BillCardHeader :header-type="'sub'" :bill="bill" />
-        </div>
-        <div id="bill-title-end" class="my-16 w-1/2 mx-auto">
-          <hr />
-        </div>
-        <ProvisionChip :visible="!titleVisible && currentMobileItem === ''" />
-        <div v-if="form" class="legis px-8" :innerHTML="form"></div>
-        <div v-if="provisions && Math.min(...provisions.map(d => d.location)) > 1"
-          class="w-full flex items-center my-3">
-          <Button variant="secondary" class="w-5/6 mx-auto" @click="handleLoadMorePrevious">Load
-            More</Button>
-        </div>
-        <div v-if="provisions" class="legis lg:ml-0 px-8 pb-32">
-          <div class="lg:hidden ml-4">
-            <Provision v-for="provision of provisionsDBtoDisplay(provisions)" :provision="provision" :isMobile="true"
-              :currentLocation="location" />
-          </div>
-          <div class="hidden lg:block">
-            <Provision v-for="provision of provisionsDBtoDisplay(provisions)" :provision="provision" :isMobile="false"
-              :currentLocation="location" />
-          </div>
-        </div>
-        <div class="w-full flex items-center">
-          <Button variant="secondary" class="w-5/6 mx-auto"
-            v-if="provisions && Math.max(...provisions.map(d => d.location)) < maxLocation"
-            @click="() => limit += 100">Load More</Button>
-        </div>
-        <div class="h-16"></div> <!--vertical margin doesn't work here-->
-      </div>
-    </div>
+      </template>
+      <template #form>
+        <div v-if="form" class="legis px-8" v-html="form" />
+      </template>
+    </Document>
   </template>
   <template v-slot:mainOverlay>
     <Transition>
