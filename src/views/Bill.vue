@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import Loader from '@/components/Loader.vue';
 import Toc from '@/components/Toc.vue';
 import SearchBill from '@/components/SearchBill.vue';
 import Shell from './Shell.vue';
 import { Button } from '@/components/ui/button';
 import BillCardHeader from '@/components/BillCardHeader.vue';
 import BillActions from '@/components/BillActions.vue';
-import { provisionsDBtoDisplayChunk } from '../utils/index.ts';
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useLastAppearedStore } from '../stores/lastAppeared.ts';
 import { useLastVoteStore, Vote } from '../stores/lastVote.ts';
@@ -117,7 +115,6 @@ watch(data, (next) => {
   lastAppearedStore.setTime(new Date().getTime());
 });
 
-const maxLocation = computed(() => (lastResult.value?.bill.provisionCount ?? 1) - 1);
 const provisions = computed(() => lastResult.value?.provisions);
 const form = computed(() => lastResult.value?.bill.form);
 const bill = computed(() => lastResult.value?.bill);
@@ -150,28 +147,11 @@ const NULL = Vote.NULL;
 const AYE = Vote.AYE;
 const NAY = Vote.NAY;
 
-function provisionsDBtoDisplay(dbProvisionsSorted: ProvisionRow[]) {
-  const locations = dbProvisionsSorted.map(d => d.location);
-  const roots = dbProvisionsSorted.filter(d => d.parentLocation == d.location || !locations.includes(d.parentLocation ?? -1));
-  const rootIdxs = roots.map(d => dbProvisionsSorted.indexOf(d));
-  return rootIdxs.map((d, i) => {
-    const rootIdxChunk = dbProvisionsSorted.slice(d, rootIdxs[i + 1] ?? undefined)
-    return provisionsDBtoDisplayChunk(rootIdxChunk, dbProvisionsSorted[d]?.level ?? 1)
-  });
-}
-
 const colorCodeToc = ref(false);
 
 const currentItem = ref("");
 const icons = [List, FileSearch, Route, ListTree];
 const items = ['Table of Contents', 'Search Bill', 'Bill Actions', 'Bill Status'];
-
-const handleLoadMorePrevious = () => {
-  // get rid of location param to prevent auto-scroll on re-mount
-  // router.replace(route.fullPath.replace(/\/\d+$/g, ''));
-  // decrement offset, triggering re-load and re-mount
-  backset.value += 50;
-}
 
 // Meta tags and title
 const pageTitle = computed(() => {

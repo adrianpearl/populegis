@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm/relations";
 import { bills, tags, users, comments, provisions, votes } from "./schema";
 
-export const tagsRelations = relations(tags, ({ one }) => ({
+export const tagsRelations = relations(tags, ({one}) => ({
 	bill: one(bills, {
 		fields: [tags.packageid],
 		references: [bills.packageid]
@@ -12,17 +12,17 @@ export const tagsRelations = relations(tags, ({ one }) => ({
 	}),
 }));
 
-export const billsRelations = relations(bills, ({ many }) => ({
+export const billsRelations = relations(bills, ({many}) => ({
 	tags: many(tags),
 	comments: many(comments),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({many}) => ({
 	tags: many(tags),
 	votes: many(votes),
 }));
 
-export const commentsRelations = relations(comments, ({ one, many }) => ({
+export const commentsRelations = relations(comments, ({one, many}) => ({
 	bill: one(bills, {
 		fields: [comments.packageid],
 		references: [bills.packageid]
@@ -37,20 +37,20 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
 	}),
 }));
 
-export const votesRelations = relations(votes, ({ one }) => ({
+export const votesRelations = relations(votes, ({one}) => ({
+	provision_location: one(provisions, {
+		fields: [votes.packageid, votes.location],
+		references: [provisions.packageid, provisions.location],
+		relationName: "votes_location_provisions_packageid"
+	}),
 	user: one(users, {
 		fields: [votes.userId],
 		references: [users.id]
 	}),
-	provision_location: one(provisions, {
-		fields: [votes.documentId, votes.location],
-		references: [provisions.documentId, provisions.location],
-		relationName: "votes_provision_document_fk"
-	}),
 }));
 
-export const provisionsRelations = relations(provisions, ({ many }) => ({
+export const provisionsRelations = relations(provisions, ({many}) => ({
 	votes_location: many(votes, {
-		relationName: "votes_provision_document_fk"
+		relationName: "votes_location_provisions_packageid"
 	}),
 }));

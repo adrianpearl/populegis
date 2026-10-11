@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import type { Hyperdrive } from '@cloudflare/workers-types';
 import { and, asc, desc, eq, gte, ilike, inArray, lte, ne, or, sql, type SQL } from 'drizzle-orm';
-import { bills, provisions, users, votes } from '../../src/db/schema';
+import { bills, governanceDocuments, provisions, users, votes } from '../../src/db/schema';
 import { BillSearch } from '../../shared/bills';
 import { createDb } from '../db';
 
@@ -198,6 +198,29 @@ publicApi.get('/users/:username/votes', async (c) => {
     return c.json({ user, bills: list.slice(0, limit) });
   } catch (err: any) {
     return c.json({ error: 'Database query failed', details: err.cause?.message ?? err.message }, 500);
+  } finally {
+    c.executionCtx.waitUntil(queryClient.end());
+  }
+});
+
+publicApi.get('/governance', async (c) => {
+  const documentId = c.req.query('documentId');
+  if (!documentId) return c.json({ error: 'documentId is required' }, 400);
+  const offset = Math.max(Number(c.req.query('offset')) || 0, 0);
+  const limit = Math.min(Number(c.req.query('limit')) || 250, 1000);
+  const { queryClient, db } = createDb(c.env.HYPERDRIVE);
+  try {
+    const document = await db.query.governanceDocuments.findFirst({ where: eq(governanceDocuments.documentId, documentId) });
+    if (!document) return c.json({ error: 'Not found' }, 404);
+    const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(provisions).where(eq(provisions.documentId, documentId));
+    const rows = await db.query.provisions.findMany({
+      where: and(eq(provisions.documentId, documentId), gte(provisions.location, offset)),
+      orderBy: [asc(provisions.location)],
+      limit,
+    });
+    return c.json({ document, provisions: rows, provisionCount: count });
+  } catch (err: any) {
+    return c.json({ error: 'Database query failed', details: err.message }, 500);
   } finally {
     c.executionCtx.waitUntil(queryClient.end());
   }

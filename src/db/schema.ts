@@ -17,7 +17,7 @@ export const smsSessions = pgTable("sms_sessions", {
 ]);
 
 export const governanceDocuments = pgTable("governance_documents", {
-	slug: text().primaryKey().notNull(),
+	documentId: text("document_id").primaryKey().notNull(),
 	title: text().notNull(),
 	adoptedAt: date("adopted_at"),
 	body: text(),
