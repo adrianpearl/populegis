@@ -1,23 +1,20 @@
+<!-- src/views/Bill.vue -->
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import Document from '@/views/Document.vue';
 import Toc from '@/components/Toc.vue';
 import SearchBill from '@/components/SearchBill.vue';
-import Shell from './Shell.vue';
-import { Button } from '@/components/ui/button';
 import BillCardHeader from '@/components/BillCardHeader.vue';
 import BillActions from '@/components/BillActions.vue';
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
+import { JsonViewer } from '@/components/ui/json-viewer';
+import { List, FileSearch, Route, ListTree } from '@lucide/vue';
 import { useLastAppearedStore } from '../stores/lastAppeared.ts';
 import { useLastVoteStore, Vote } from '../stores/lastVote.ts';
-import { JsonViewer } from '@/components/ui/json-viewer';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { List, FileSearch, Route, ListTree, Check, Ban, X, Vote as VoteIcon } from '@lucide/vue';
 import { toast } from 'vue-sonner';
 import { useHead } from '@unhead/vue';
-import Document from '@/components/Document.vue';
 import { useApi } from '@/composables/useApi';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { bills, provisions as provisionsTable } from '../db/schema';
-import Tooltip from '@/components/Tooltip.vue';
 
 const props = defineProps({
   packageid: {
@@ -83,13 +80,17 @@ const limit = ref(250);
 const backset = ref(100);
 const offset = computed(() => props.location ? Math.max(props.location - backset.value, 0) : 0);
 const queryEnabled = ref(true);
-const currentMobileItem = ref("");
-const titleVisible = ref(true);
-let titleEndScroll = Infinity;
+
+// Define Bill-specific navigation configuration
+const billNavItems = [
+  { name: 'Table of Contents', icon: List },
+  { name: 'Search Bill', icon: FileSearch },
+  { name: 'Bill Actions', icon: Route },
+  { name: 'Bill Status', icon: ListTree }
+];
 
 watch(() => props.location, (newLocation) => {
   const newLoc = newLocation ?? 0;
-  currentMobileItem.value = '';
   const loaded = lastResult.value?.provisions.map(d => d.location) ?? [];
   if (loaded.includes(newLoc)) {
     queryEnabled.value = false;
@@ -121,19 +122,6 @@ const bill = computed(() => lastResult.value?.bill);
 const billStatus = computed(() => asBillStatus(bill.value?.status));
 const billId = computed(() => [bill.value?.billType, bill.value?.number].filter(Boolean).join(' '));
 
-function handleScroll() {
-  if (titleEndScroll === Infinity) {
-    const el = document.getElementById('bill-title-end');
-    if (el) {
-      titleEndScroll = window.scrollY + el.getBoundingClientRect().bottom - 56;
-    }
-  }
-  titleVisible.value = window.scrollY < titleEndScroll;
-}
-
-onMounted(() => document.addEventListener('scroll', handleScroll, { passive: true }));
-onUnmounted(() => document.removeEventListener('scroll', handleScroll));
-
 const currentVote = ref<Vote>(Vote.NULL);
 const onVote = (vote: Vote) => {
   currentVote.value = vote;
@@ -141,17 +129,8 @@ const onVote = (vote: Vote) => {
   toast.info('Your interest in popular government is appreciated.', {
     description: 'Please check back soon for further updates.',
     closeButton: true,
-  })
-}
-const NULL = Vote.NULL;
-const AYE = Vote.AYE;
-const NAY = Vote.NAY;
-
-const colorCodeToc = ref(false);
-
-const currentItem = ref("");
-const icons = [List, FileSearch, Route, ListTree];
-const items = ['Table of Contents', 'Search Bill', 'Bill Actions', 'Bill Status'];
+  });
+};
 
 // Meta tags and title
 const pageTitle = computed(() => {
@@ -171,147 +150,53 @@ useHead({
   title: pageTitle,
   titleTemplate: '%s - Popular Legislation',
   meta: [
-    {
-      name: 'description',
-      content: pageDescription
-    },
-    {
-      property: 'og:title',
-      content: pageTitle
-    },
-    {
-      property: 'og:description',
-      content: pageDescription
-    },
-    {
-      property: 'og:type',
-      content: 'article'
-    }
+    { name: 'description', content: pageDescription },
+    { property: 'og:title', content: pageTitle },
+    { property: 'og:description', content: pageDescription },
+    { property: 'og:type', content: 'article' }
   ]
 });
 </script>
 
 <template>
-<Shell :mobile-page-title="bill ? billId : 'Bill'" :logo="true" :showMobileMainOverlay="currentMobileItem != ''"
-  :page-loading="loading">
-  <template v-slot:pagetitle>
+<Document :document-id="packageid" :mobile-page-title="bill ? billId : 'Bill'" :provisions="provisions ?? []"
+  :provision-count="bill?.provisionCount ?? 0" :location="location" :loading="loading" :current-vote="currentVote"
+  :nav-items="billNavItems" @load-more="limit += 100" @load-previous="backset += 50" @vote="onVote">
+  <!-- Slot mapping for Shell's navbar title alignment -->
+  <template #pagetitle>
     <div class="max-w-full flex justify-between gap-1">
       <div class="flex gap-2 items-baseline min-w-0 shrink">
         <span class="font-semibold text-base whitespace-nowrap">{{ billId }}</span>
         <span v-if="bill?.shortTitle" class="text-base">|</span>
         <span v-if="bill?.shortTitle"
-          class="font-normal text-base font-serif whitespace-nowrap text-ellipsis overflow-hidden">{{
-            bill?.shortTitle
-          }}</span>
+          class="font-normal text-base font-serif whitespace-nowrap text-ellipsis overflow-hidden">
+          {{ bill?.shortTitle }}
+        </span>
       </div>
     </div>
   </template>
-  <template v-slot:main>
-    <Document :document-id="packageid" :provisions="provisions ?? []" :provision-count="bill?.provisionCount ?? 0"
-      :location="location" :loading="loading" :current-vote="currentVote" @load-more="limit += 100"
-      @load-previous="backset += 50" @vote="onVote">
-      <template #header>
-        <div v-if="bill" class="relative mb-16 px-6 pt-20 space-y-2">
-          <div class="font-serif text-3xl lg:text-5xl">{{ bill.shortTitle }}</div>
-          <BillCardHeader header-type="sub" :bill="bill" />
-        </div>
-      </template>
-      <template #form>
-        <div v-if="form" class="legis px-8" v-html="form" />
-      </template>
-    </Document>
-  </template>
-  <template v-slot:mainOverlay>
-    <Transition>
-      <div class="relative h-full p-3 overflow-y-scroll">
-        <div class="w-full flex justify-between items-center mb-px">
-          <div class="text-lg font-semibold">{{ currentMobileItem }}</div>
-          <Button variant="ghost" size="icon-lg" @click="() => currentMobileItem = ''">
-            <component :is="X"></component>
-          </Button>
-        </div>
-        <Toc v-if="currentMobileItem == 'Table of Contents'" :packageid="packageid" />
-        <SearchBill v-else-if="currentMobileItem == 'Search Bill'" :packageid="packageid" :mobile="true" />
-        <JsonViewer v-else-if="currentMobileItem == 'Bill Status'" :data="billStatus" root-name="status" />
-        <BillActions v-else-if="currentMobileItem == 'Bill Actions' && billStatus.actions"
-          :actions="billStatus.actions" />
-      </div>
-    </Transition>
-  </template>
-  <template v-slot:sidebar>
-    <div class="flex flex-col mb-2 z-30">
-      <div class="sticky top-0 z-10 bg-background pb-2 flex items-center flex-wrap-reverse gap-2 justify-between">
-        <div class="font-semibold w-full xl:w-fit">{{ currentItem }}</div>
-        <div class="flex flex-wrap items-stretch gap-0.5">
-          <ToggleGroup class="flex gap-0.5" v-model="currentItem">
-            <Tooltip v-for="(item, i) of items" :content="item">
-              <ToggleGroupItem class="size-9 rounded-md" :value="item" :aria-label="'Toggle ' + item">
-                <component :is="icons[i]"></component>
-              </ToggleGroupItem>
-            </Tooltip>
-          </ToggleGroup>
-          <div class="w-px bg-border mx-1"></div>
-          <Button size="icon" :variant="currentVote === Vote.AYE ? 'success' : 'ghostSuccess'"
-            @click="() => onVote(currentVote === AYE ? NULL : AYE)">
-            <component :is="Check"></component>
-          </Button>
-          <Button size="icon" :variant="currentVote === Vote.NAY ? 'destructive' : 'ghostDestructive'"
-            @click="() => onVote(currentVote === NAY ? NULL : NAY)">
-            <component :is="Ban"></component>
-          </Button>
-        </div>
-      </div>
-      <div class="grow">
-        <div v-if="currentItem == 'Table of Contents'">
-          <div class="hidden flex-not gap-2 text-xs mb-2">
-            <input type="checkbox" class="accent-blue-600" v-model="colorCodeToc" />
-            <label>Color code items by response</label>
-          </div>
-          <Toc :packageid="packageid" />
-        </div>
-        <div v-else-if="currentItem == 'Search Bill'">
-          <SearchBill :packageid="packageid" />
-        </div>
-        <div v-else-if="currentItem == 'Bill Actions'">
-          <BillActions v-if="billStatus.actions" :actions="billStatus.actions" />
-        </div>
-        <div v-else-if="currentItem == 'Bill Status'">
-          <JsonViewer :data="billStatus" root-name="status" />
-        </div>
-      </div>
+
+  <!-- Inner content slot components mapping -->
+  <template #header>
+    <div v-if="bill" class="relative mb-16 px-6 pt-20 space-y-2">
+      <div class="font-serif text-3xl lg:text-5xl">{{ bill.shortTitle }}</div>
+      <BillCardHeader header-type="sub" :bill="bill" />
     </div>
   </template>
-  <template v-slot:mobileNav>
-    <div class="w-full h-14 bg-background border-t dark:border-zinc-900 flex justify-around items-center">
-      <Button size="icon-lg" variant="ghost" v-for="(item, i) of items"
-        @click="() => currentMobileItem = currentMobileItem == item ? '' : item"
-        :class="{ 'bg-muted': currentMobileItem == item }">
-        <component :is="icons[i]"></component>
-      </Button>
-      <Button size="icon-lg" :variant="currentVote === Vote.AYE ? 'success' : 'ghostSuccess'"
-        @click="() => onVote(currentVote === AYE ? NULL : AYE)">
-        <Check />
-      </Button>
-      <Button size="icon-lg" :variant="currentVote === Vote.NAY ? 'destructive' : 'ghostDestructive'"
-        @click="() => onVote(currentVote === NAY ? NULL : NAY)">
-        <Ban />
-      </Button>
-    </div>
+
+  <template #form>
+    <div v-if="form" class="legis px-8" v-html="form" />
   </template>
-</Shell>
+
+  <!-- Conditional rendering structural sub-views wrapper inside Document layout panels -->
+  <template #navigationContent="{ activeItem, isMobile }">
+    <Toc v-if="activeItem === 'Table of Contents'" :packageid="packageid" />
+    <SearchBill v-else-if="activeItem === 'Search Bill'" :packageid="packageid" :mobile="isMobile" />
+    <JsonViewer v-else-if="activeItem === 'Bill Status'" :data="billStatus" root-name="status" />
+    <BillActions v-else-if="activeItem === 'Bill Actions' && billStatus.actions" :actions="billStatus.actions" />
+  </template>
+</Document>
 </template>
-
-<style lang="css" scoped>
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-</style>
 
 <style>
 .legis {
