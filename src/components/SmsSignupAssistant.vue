@@ -28,7 +28,7 @@ const US_STATES_AND_TERRITORIES = [
 
 const currentVote = computed(() => {
   const votes = lastVote.localVotes.filter(
-    v => v.packageid === 'GOVERNANCE-1' && v.location === 0
+    v => v.packageid === 'META-1' && v.location === 0
   );
   if (votes.length > 0) {
     return votes[votes.length - 1]?.vote;
@@ -107,7 +107,7 @@ const copyMessage = () => {
 
     <div class="space-y-2">
       <label for="username" class="text-sm font-medium">Username (alphanumeric, min 3 characters)</label>
-      <Input id="username" v-model="username" placeholder="johnsmith" />
+      <Input id="username" v-model="username" placeholder="georgewashington" />
       <p v-if="username && cleanUsername" class="text-xs text-muted-foreground">
         Will be saved as: {{ cleanUsername }}
       </p>
@@ -116,12 +116,12 @@ const copyMessage = () => {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="space-y-2">
         <label for="firstName" class="text-sm font-medium">First Name</label>
-        <Input id="firstName" v-model="firstName" placeholder="John" />
+        <Input id="firstName" v-model="firstName" placeholder="George" />
       </div>
 
       <div class="space-y-2">
         <label for="lastName" class="text-sm font-medium">Last Name</label>
-        <Input id="lastName" v-model="lastName" placeholder="Smith" />
+        <Input id="lastName" v-model="lastName" placeholder="Washington" />
       </div>
     </div>
 

@@ -95,7 +95,7 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
     <span v-if="mobile" class="text-primary">
       <ListFilter :size="16" />
     </span>
-    <button v-for="filter of filters" :key="filter.name"
+    <Button v-for="filter of filters" :key="filter.name" size="sm"
       @click="currentFilter = currentFilter === filter.name ? undefined : filter.name"
       class="flex text-nowrap items-center gap-2 rounded-sm"
       :class="mobile
@@ -109,7 +109,7 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
         :class="mobile ? '' : 'px-0.5 rounded-full hover:bg-primary/10'">
         <X :size="16" />
       </span>
-    </button>
+    </Button>
   </div>
 
   <hr v-if="!mobile" />
@@ -149,7 +149,7 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
       <label v-else-if="currentFilter === 'Appropriations'"
         class="flex items-center space-x-3 text-sm text-gray-700 dark:text-zinc-400">
         <Switch :model-value="search.appropriationsOnly" @update:model-value="set('appropriationsOnly', $event)" />
-        Appropriations bills only
+        <span>Appropriations bills only</span>
       </label>
 
       <SearchSelect v-else-if="currentFilter === 'Policy Area'" :model-value="search.policyArea ?? ''"

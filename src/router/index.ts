@@ -41,7 +41,7 @@ const router = createRouter({
       name: 'privacy',
       component: Governance,
       props: (route) => ({
-        slug: 'META-1',
+        documentId: 'META-1',
         location: 34
       })
     },
