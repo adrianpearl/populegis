@@ -3,7 +3,7 @@ export function getBillBasePath(packageid: string): string {
     return '';
   }
   if (packageid.startsWith("META")) {
-    return `/governance/${packageid.split('-')[1]}`;
+    return `/governance`;
   }
   return `/bill/${packageid.split('-')[1]}`;
 }

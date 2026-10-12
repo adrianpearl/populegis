@@ -28,7 +28,7 @@ const router = createRouter({
       })
     },
     {
-      path: '/governance/:slug?/:location?',
+      path: '/governance/:location?',
       name: 'governance',
       component: Governance,
       props: (route) => ({
