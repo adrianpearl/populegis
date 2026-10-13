@@ -44,7 +44,7 @@ publicApi.get('/bills', async (c) => {
     where.push(sql`${bills.form} is not null and ${bills.form} <> ''`);
     if (filters.congress?.length) where.push(inArray(bills.congress, filters.congress));
     if (filters.originChamber) where.push(sql`lower(${bills.originChamber}) = lower(${filters.originChamber})`);
-    if (filters.billTypes?.length) where.push(inArray(bills.billType, filters.billTypes.map((t) => t.toLowerCase())));
+    if (filters.billTypes?.length) where.push(inArray(sql`lower(${bills.billType})`, filters.billTypes.map((t) => t.toLowerCase())));
     if (filters.number != null && filters.number !== ('' as unknown)) where.push(eq(bills.number, Number(filters.number)));
     if (filters.title) {
       const pattern = like(filters.title);
