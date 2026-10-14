@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { ref, toRefs } from 'vue';
+import { computed, ref, toRefs } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useDark, useToggle } from '@vueuse/core';
 import { Home, FileCode2, Database, Sun, Moon, FolderGit2, ExternalLink, Menu, Landmark, FolderLock } from '@lucide/vue';
@@ -32,6 +32,52 @@ const { showMobileMainOverlay, pageLoading } = toRefs(props);
 const mobileSearch = ref(false);
 
 const showMenu = ref(false);
+
+const navItems = computed(() => [
+  {
+    props: { to: '/' },
+    tooltip: 'Home',
+    icon: Home,
+    show: true
+  },
+  {
+    props: { to: '/governance' },
+    tooltip: 'Governance',
+    icon: Landmark,
+    show: true
+  },
+  {
+    props: { to: '/privacy' },
+    tooltip: 'Privacy',
+    icon: FolderLock,
+    show: true
+  },
+  {
+    props: { to: '/source' },
+    tooltip: 'Source',
+    icon: FileCode2,
+    show: showSource // Dynamic visibility
+  },
+  {
+    props: { href: console_url, target: '_blank' },
+    tooltip: 'API',
+    icon: Database,
+    show: true
+  },
+  {
+    props: { href: git_url, target: '_blank' },
+    tooltip: 'Source Code',
+    icon: FolderGit2,
+    show: true
+  },
+  {
+    props: {},
+    tooltip: isDark.value ? 'Light Mode' : 'Dark Mode',
+    icon: isDark.value ? Sun : Moon,
+    action: toggleDark, // Triggers click handler
+    show: true
+  }
+])
 </script>
 
 <template>
@@ -58,58 +104,21 @@ const showMenu = ref(false);
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent :align="'start'" class="w-dvw border-none rounded-none px-2 py-3">
-            <DropdownMenuItem as-child>
-              <router-link :to="'/'">
-                <Button class="w-full justify-start" variant="ghost">
-                  <Home class="text-primary" /> Home
+            <DropdownMenuItem as-child v-for="item in navItems.filter(d => d.show)">
+              <component :is="item.props.href ? 'a' : 'router-link'" :to="item.props.to ?? ''"
+                :href="item.props.href ?? ''">
+                <Button class="w-full justify-start" variant="ghost" @click="item.action ? item.action() : null">
+                  <component :is="item.icon" class="text-primary" /> {{ item.tooltip }}
                 </Button>
-              </router-link>
+              </component>
             </DropdownMenuItem>
-            <DropdownMenuItem v-if="showSource" as-child>
-              <router-link :to="'/source'">
-                <Button class="w-full justify-start" variant="ghost">
-                  <FileCode2 class="text-primary" /> Source
-                </Button>
-              </router-link>
-            </DropdownMenuItem>
-            <DropdownMenuItem as-child>
-              <router-link :to="'/governance'">
-                <Button class="w-full justify-start" variant="ghost">
-                  <Landmark class="text-primary" /> Governance
-                </Button>
-              </router-link>
-            </DropdownMenuItem>
-            <DropdownMenuItem as-child>
-              <router-link :to="'/privacy'">
-                <Button class="w-full justify-start" variant="ghost">
-                  <FolderLock class="text-primary" /> Privacy
-                </Button>
-              </router-link>
-            </DropdownMenuItem>
-            <DropdownMenuItem as-child>
-              <a :href="console_url" target="_blank">
-                <Button class="w-full justify-start" variant="ghost">
-                  <Database class="text-primary" /> API
-                  <ExternalLink :size="12" class="ms-auto" />
-                </Button>
-              </a>
-            </DropdownMenuItem>
-            <DropdownMenuItem as-child>
-              <a :href="git_url" target="_blank">
-                <Button class="w-full justify-start" variant="ghost">
-                  <FolderGit2 class="text-primary" /> Source Code
-                  <ExternalLink :size="12" class="ms-auto" />
-                </Button>
-              </a>
-            </DropdownMenuItem>
-            <DropdownMenuItem as-child @click="() => toggleDark()">
-              <a>
-                <Button class="w-full justify-start" variant="ghost">
-                  <Sun class="text-primary" v-if="isDark" />
-                  <Moon class="text-primary" v-else /> {{ isDark ? 'Light Mode' : 'Dark Mode' }}
-                </Button>
-              </a>
-            </DropdownMenuItem>
+            <div class="text-xs text-muted-foreground m-2">
+              To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data
+              rates may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <a
+                class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of Service</a> and <a
+                class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
+                Policy</a>.
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -130,73 +139,35 @@ const showMenu = ref(false);
   </div>
 </div>
 <div class="hidden lg:grid grid-cols-12 gap-1">
-  <div
-    class="xl:col-span-2 pl-6 sticky top-0 h-screen min-h-screen flex flex-col justify-between pt-3.5 xl:pt-0 pb-3.5 bg-background z-20">
+  <div class="xl:col-span-2 pl-6 sticky top-0 h-screen min-h-screen flex flex-col gap-6 pb-4 bg-background z-20">
+    <div class="flex items-center h-16">
+      <router-link :to="'/governance'">
+        <span
+          :class="$route.name == '/governance' ? 'bg-zinc-900/5 dark:text-zinc-200 dark:bg-zinc-100/10' : 'hover:bg-zinc-900/5 active:bg-zinc-900/10 dark:text-zinc-300 dark:hover:bg-zinc-100/10 dark:active:bg-zinc-100/20'"
+          class="material-symbols-outlined large filled text-gray-800 rounded-sm size-11 p-1">
+          history_edu
+        </span>
+      </router-link>
+    </div>
     <div class="sticky top-0 bg-background z-20">
-      <div class="flex flex-col xl:flex-row gap-0.5 items-start xl:items-center xl:min-h-16 xl:flex-wrap">
-        <router-link :to="'/'">
-          <Tooltip content="Home">
-            <Button variant="ghost" size="icon">
-              <component :is="Home"></component>
+      <div class="flex flex-col gap-0.5 items-start xl:hidden">
+        <Tooltip v-for="item in navItems.filter(d => d.show)" :content="item.tooltip">
+          <component :is="item.props.href ? 'a' : 'router-link'" :to="item.props.to ?? ''"
+            :href="item.props.href ?? ''">
+            <Button variant="ghost" size="icon" @click="item.action ? item.action() : null">
+              <component :is="item.icon" />
             </Button>
-          </Tooltip>
-        </router-link>
-
-        <router-link v-if="showSource" :to="'/source'">
-          <Tooltip content="Source">
-            <Button variant="ghost" size="icon">
-              <component :is="FileCode2"></component>
-            </Button>
-          </Tooltip>
-        </router-link>
-        <Tooltip content="API">
-          <a :href="console_url" target="_blank">
-            <Button variant="ghost" size="icon">
-              <component :is="Database"></component>
-            </Button>
-          </a>
-        </Tooltip>
-        <Tooltip content="Source Code">
-          <a :href="git_url" target="_blank">
-            <Button variant="ghost" size="icon">
-              <component :is="FolderGit2"></component>
-            </Button>
-          </a>
-        </Tooltip>
-        <Tooltip :content="isDark ? 'Light Mode' : 'Dark Mode'">
-          <Button variant="ghost" size="icon" @click="toggleDark()">
-            <component :is="isDark ? Sun : Moon"></component>
-          </Button>
+          </component>
         </Tooltip>
       </div>
-    </div>
-    <div class="flex">
-      <router-link :to="'/governance'" class="lg:hidden">
-        <Tooltip content="Governance / Privacy">
-          <span
-            :class="$route.name == '/governance' ? 'bg-zinc-900/5 dark:text-zinc-200 dark:bg-zinc-100/10' : 'hover:bg-zinc-900/5 active:bg-zinc-900/10 dark:text-zinc-300 dark:hover:bg-zinc-100/10 dark:active:bg-zinc-100/20'"
-            class="material-symbols-outlined filled text-gray-800 rounded-sm size-8 p-1">
-            history_edu
-          </span>
-        </Tooltip>
-
-      </router-link>
-      <router-link :to="'/governance'" class="hidden lg:block">
-        <Tooltip content="Governance / Privacy">
-          <span
-            :class="$route.name == '/governance' ? 'bg-zinc-900/5 dark:text-zinc-200 dark:bg-zinc-100/10' : 'hover:bg-zinc-900/5 active:bg-zinc-900/10 dark:text-zinc-300 dark:hover:bg-zinc-100/10 dark:active:bg-zinc-100/20'"
-            class="material-symbols-outlined large filled text-gray-800 rounded-sm size-11 p-1">
-            history_edu
-          </span>
-        </Tooltip>
-      </router-link>
-      <div class="hidden xl:flex flex-col">
-        <router-link to="/governance" class="h-5">
-          <Button variant="link" class="w-fit h-5 py-0 px-2 text-xs">Governance</Button>
-        </router-link>
-        <router-link to="/privacy" class="h-5">
-          <Button variant="link" class="w-fit h-5 py-0 px-2 text-xs">Privacy</Button>
-        </router-link>
+      <div class="hidden xl:flex flex-col gap-1 items-start">
+        <component v-for="item in navItems.filter(d => d.show)" :is="item.props.href ? 'a' : 'router-link'"
+          :to="item.props.to ?? ''" :href="item.props.href ?? ''" class="w-full">
+          <Button variant="ghost" class="w-full justify-start" @click="item.action ? item.action() : null">
+            <component :is="item.icon" />
+            <span class="text-xs">{{ item.tooltip }}</span>
+          </Button>
+        </component>
       </div>
     </div>
   </div>
@@ -211,13 +182,26 @@ const showMenu = ref(false);
       <slot name="main"></slot>
     </div>
   </div>
-  <div class="col-span-4 flex flex-col sticky top-0 max-h-dvh">
-    <div class="flex gap-2 sticky top-0 h-16 min-h-16 items-center z-20 pr-6 bg-background">
-      <BillSearch />
+  <div class="col-span-4 flex flex-col sticky top-0 h-dvh max-h-dvh justify-between gap-2">
+    <div class="flex flex-col sticky top-0 grow overflow-y-auto">
+      <div class="flex gap-2 sticky top-0 h-16 min-h-16 items-center z-20 pr-6 bg-background">
+        <BillSearch />
+      </div>
+      <div class="overflow-y-auto">
+        <div class="mr-6 mb-6">
+          <slot name="sidebar"></slot>
+        </div>
+      </div>
     </div>
-    <div class="sticky top-0 max-h-dvh overflow-y-auto">
-      <div class="mr-6 mb-6">
-        <slot name="sidebar"></slot>
+    <div class="sticky bottom-0">
+      <div class="mr-6 mb-4">
+        <div class="text-xs text-muted-foreground">
+          To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data rates
+          may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <a
+            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of Service</a> and <a
+            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
+            Policy</a>.
+        </div>
       </div>
     </div>
   </div>
