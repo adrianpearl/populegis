@@ -1,9 +1,9 @@
 // server/index.ts
-import { handleRequest } from './app';
-import type { PublicEnv } from './env';
+import { Hono } from 'hono';
+import { govinfo } from './routes/govinfo';
+import { billsadd } from './routes/bills';
 
-export default {
-  fetch(request: Request, env: PublicEnv, ctx: ExecutionContext) {
-    return handleRequest(request, env, ctx);
-  },
-};
+const app = new Hono().basePath('/api/admin');
+app.route('/govinfo', govinfo);
+app.route('/', billsadd);
+export default app;

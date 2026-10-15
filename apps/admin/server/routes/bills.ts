@@ -2,12 +2,12 @@
 import { Hono } from 'hono';
 import type { Hyperdrive } from '@cloudflare/workers-types';
 import { eq } from 'drizzle-orm';
-import { bills, provisions } from '../../src/db/schema';
+import { bills, provisions } from '@populegis/db';
 import { createDb } from '../db';
 
-export const admin = new Hono<{ Bindings: { DB_WRITE: Hyperdrive } }>();
+export const billsadd = new Hono<{ Bindings: { DB_WRITE: Hyperdrive } }>();
 
-admin.put('/bills/:packageid', async (c) => {
+billsadd.put('/bills/:packageid', async (c) => {
   const packageid = c.req.param('packageid');
   const body = await c.req.json<{ bill: typeof bills.$inferInsert; provisions: (typeof provisions.$inferInsert)[] }>();
   if (body.bill?.packageid !== packageid) return c.json({ error: 'packageid mismatch' }, 400);
