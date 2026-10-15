@@ -33,7 +33,7 @@ const billPath = computed(() => getBillBasePath(bill.packageid));
 
 <template>
   <RouterLink v-if="bill" :to="billPath">
-    <div class="group" :class="context === 'search' ? 'p-3' : 'py-6 px-1'">
+    <div class="group hover:bg-muted/50" :class="context === 'search' ? 'p-3' : 'py-6 px-4'">
       <BillCardHeader :header-type="'main'" :bill="bill" class="text-xs" />
       <div class="font-serif" :class="context === 'search' ? 'text-base' : 'text-2xl'">
         {{ titlePrepend + (bill.shortTitle ?? bill.officialTitle) }}

@@ -159,7 +159,7 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
         <Input v-model="titleQuery" placeholder="Enter bill title (in whole or in part)" />
         <label class="flex items-center space-x-3 text-sm text-gray-700 dark:text-zinc-400">
           <Switch :model-value="search.includeOfficialTitle"
-            @update:model-value="set('includeOfficialTitle', $event)" />
+            @update:model-value="set('includeOfficialTitle', $event)" class="mr-2" />
           Include official title
         </label>
       </div>

@@ -151,7 +151,7 @@ const navItems = computed(() => [
     </div>
     <div class="sticky top-0 bg-background z-20">
       <div class="flex flex-col gap-0.5 items-start xl:hidden">
-        <Tooltip v-for="item in navItems.filter(d => d.show)" :content="item.tooltip">
+        <Tooltip v-for="item in navItems.filter(d => d.show)" :content="item.tooltip" placement="right">
           <component :is="item.props.href ? 'a' : 'router-link'" :to="item.props.to ?? ''"
             :href="item.props.href ?? ''">
             <Button variant="ghost" size="icon" @click="item.action ? item.action() : null">
@@ -182,7 +182,7 @@ const navItems = computed(() => [
       <slot name="main"></slot>
     </div>
   </div>
-  <div class="col-span-4 flex flex-col sticky top-0 h-dvh max-h-dvh justify-between gap-2">
+  <div class="col-span-4 flex flex-col sticky top-0 h-dvh max-h-dvh justify-between">
     <div class="flex flex-col sticky top-0 grow overflow-y-auto">
       <div class="flex gap-2 sticky top-0 h-16 min-h-16 items-center z-20 pr-6 bg-background">
         <BillSearch />
@@ -194,7 +194,7 @@ const navItems = computed(() => [
       </div>
     </div>
     <div class="sticky bottom-0">
-      <div class="mr-6 mb-4">
+      <div class="mr-6 my-4">
         <div class="text-xs text-muted-foreground">
           To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data rates
           may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <a
