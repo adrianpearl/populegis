@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import type { Hyperdrive } from '@cloudflare/workers-types';
 import { and, eq } from 'drizzle-orm';
-import { smsSessions, users, votes } from '../../src/db/schema';
+import { smsSessions, users, votes } from '@populegis/db';
 import { createDb } from '../db';
 
 type Env = { DB_WRITE: Hyperdrive; TWILIO_AUTH_TOKEN: string };

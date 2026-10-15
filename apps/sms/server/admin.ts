@@ -1,16 +1,6 @@
-// server/admin.ts
-import { api, handleRequest } from './app';
-import { govinfo } from './routes/govinfo';
-import { admin } from './routes/admin';
+import { Hono } from 'hono';
 import { sms } from './routes/sms';
-import type { AdminEnv } from './env';
 
-api.route('/admin/govinfo', govinfo);
-api.route('/admin', admin);
-api.route('/sms', sms);
-
-export default {
-  fetch(request: Request, env: AdminEnv, ctx: ExecutionContext) {
-    return handleRequest(request, env, ctx);
-  },
-};
+const app = new Hono().basePath('/api/admin');
+app.route('/sms', sms);
+export default app;

@@ -18,21 +18,8 @@
 		{
 			"binding": "DB_WRITE",
 			"id": "da1f9f3c95e54500999220d9a2deec18"
-		},
-		{
-			"binding": "HYPERDRIVE",
-			"id": "ae58d4f7a9894f4eab10e72a2befecc6"
 		}
-	],
-	"assets": {
-		"directory": "./dist",
-		"binding": "SITE",
-		"not_found_handling": "single-page-application",
-		"run_worker_first": [
-			"/api/*",
-			"/item/*"
-		]
-	}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
