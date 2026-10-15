@@ -4,7 +4,10 @@
   "main": "index.ts",
   "types": "index.ts",
   "dependencies": {
-    "drizzle-orm": "^0.45.3",
+    "drizzle-orm": "0.45.3",
     "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261014.1"
   }
 }
