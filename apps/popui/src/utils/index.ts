@@ -1,4 +1,4 @@
-import { type ProvisionRecord } from '../../shared/provisions';
+import { type ProvisionRecord } from '@populegis/shared';
 import allProvisionTypes from './provisionTypes.json';
 
 const aboveSectionLabels: Record<string, string> = {

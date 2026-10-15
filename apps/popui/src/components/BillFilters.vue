@@ -11,7 +11,7 @@ import houseMembers from '../utils/houseMembers.json';
 import senateMembers from '../utils/senateMembers.json';
 import legislativeSubjects from '../utils/legislativeSubjects.json';
 import policyAreas from '../utils/policyAreas.json';
-import type { BillSearch } from '../../shared/bills';
+import type { BillSearch } from '@populegis/shared';
 
 defineProps({ mobile: Boolean });
 

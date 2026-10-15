@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import Loader from '@/components/Loader.vue';
 import { JsonViewer } from '@/components/ui/json-viewer';
 import { modifyXML, xmlRootProvision, provisionsXMLtoDB, type BillSummary } from '@/utils';
-import type { ProvisionRecord } from '../../shared/provisions.ts';
+import type { ProvisionRecord } from '@populegis/shared.ts';
 import { toast } from "vue-sonner";
 
 type StatusTitle = { titleType: string; title: string };

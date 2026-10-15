@@ -2,8 +2,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import type { Hyperdrive } from '@cloudflare/workers-types';
-import * as schema from '../src/db/schema';
-import * as relations from '../src/db/relations';
+import { dbSchema } from '@populegis/db';
 
 export function createDb(hyperdrive: Hyperdrive) {
   const queryClient = postgres(hyperdrive.connectionString, {
@@ -11,6 +10,6 @@ export function createDb(hyperdrive: Hyperdrive) {
     fetch_types: false,
     prepare: true,
   });
-  const db = drizzle(queryClient, { schema: { ...schema, ...relations } });
+  const db = drizzle(queryClient, { schema: dbSchema });
   return { queryClient, db };
 }

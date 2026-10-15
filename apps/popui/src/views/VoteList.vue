@@ -11,7 +11,7 @@ import { Vote } from '@/stores/lastVote';
 import { pTagBreadcrumbs } from '@/utils';
 import { useHead } from '@unhead/vue';
 import { useApi } from '@/composables/useApi';
-import type { BillSearch } from '../../shared/bills';
+import type { BillSearch } from '@populegis/shared';
 
 type User = { firstname: string | null; lastname: string | null; state: string | null; district: string | null };
 type Subvote = { location: number; voteOption: string; provision: { provisionTag: string | null; header: string | null } | null };

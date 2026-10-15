@@ -1,6 +1,10 @@
 {
   "name": "@populegis/db",
   "private": true,
-  "main": "src/schema.ts",
-  "types": "src/schema.ts"
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "drizzle-orm": "^0.45.3",
+    "postgres": "^3.4.9"
+  }
 }

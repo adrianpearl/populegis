@@ -3,13 +3,13 @@ import { ArrowDownWideNarrow, FolderOpen, Funnel } from '@lucide/vue';
 import Shell from './Shell.vue';
 import BillCard from '@/components/BillCard.vue';
 import BillFilters from '@/components/BillFilters.vue';
-import { type BillSearch } from '../../shared/bills.ts';
+import { type BillSearch } from '@populegis/shared';
 import Loader from '@/components/Loader.vue';
 import { Button } from '@/components/ui/button';
 import { useRoute, useRouter } from 'vue-router';
 import { ref, watch } from 'vue';
 import type { InferSelectModel } from 'drizzle-orm';
-import type { bills } from '../db/schema';
+import type { bills } from '@populegis/db';
 import { useHead } from '@unhead/vue';
 import { useApi } from '@/composables/useApi';
 

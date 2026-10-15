@@ -2,8 +2,8 @@
 import { Hono } from 'hono';
 import type { Hyperdrive } from '@cloudflare/workers-types';
 import { and, asc, desc, eq, gte, ilike, inArray, lte, ne, or, sql, type SQL } from 'drizzle-orm';
-import { bills, governanceDocuments, provisions, users, votes } from '../../src/db/schema';
-import { BillSearch } from '../../shared/bills';
+import { bills, governanceDocuments, provisions, users, votes } from '@populegis/db';
+import { BillSearch } from '@populegis/shared';
 import { createDb } from '../db';
 
 type Env = { HYPERDRIVE: Hyperdrive };

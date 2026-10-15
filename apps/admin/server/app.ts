@@ -2,7 +2,7 @@
 import type { HTMLRewriter as CFHTMLRewriter, Response as CFResponse } from '@cloudflare/workers-types';
 import { Hono } from 'hono';
 import { and, eq } from 'drizzle-orm';
-import { bills, provisions } from '../src/db/schema';
+import { bills, provisions } from '@populegis/db';
 import { createDb } from './db';
 import { publicApi } from './routes/public';
 import type { PublicEnv } from './env';
