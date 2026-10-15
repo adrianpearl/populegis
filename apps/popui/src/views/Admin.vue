@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import Loader from '@/components/Loader.vue';
 import { JsonViewer } from '@/components/ui/json-viewer';
 import { modifyXML, xmlRootProvision, provisionsXMLtoDB, type BillSummary } from '@/utils';
-import type { ProvisionRecord } from '@populegis/shared.ts';
+import type { ProvisionRecord } from '@populegis/shared';
 import { toast } from "vue-sonner";
 
 type StatusTitle = { titleType: string; title: string };
@@ -32,6 +32,8 @@ const preview = ref<{ packageId: string; summary: BillSummary; status: StatusXml
 const loadingUpsert = ref(false);
 const upsertButtonText = ref("Upsert");
 
+const ADMIN = import.meta.env.VITE_ADMIN_URL;
+
 async function loadModified(reset = false) {
   if (reset) {
     packages.value = [];
@@ -41,7 +43,7 @@ async function loadModified(reset = false) {
   error.value = '';
   try {
     const params = new URLSearchParams({ from: from.value, to: to.value, offsetMark: offsetMark.value });
-    const response = await fetch(`/api/admin/govinfo/modified?${params}`);
+    const response = await fetch(`${ADMIN}/api/admin/govinfo/modified?${params}`);
     const body = await response.json();
     if (!response.ok) throw new Error(body.error);
     packages.value = packages.value.concat(body.packages ?? []);
@@ -97,7 +99,7 @@ async function upsertBill() {
   loadingUpsert.value = true;
   const { packageId, provisions, status, summary, form } = preview.value;
   const bill = billFromPreview(packageId, summary, status, form);
-  await fetch(`/api/admin/bills/${packageId}`, {
+  await fetch(`${ADMIN}/api/admin/bills/${packageId}`, {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ bill, provisions }),
@@ -123,7 +125,7 @@ async function openPackage(packageId: string) {
   error.value = '';
   preview.value = undefined;
   try {
-    const response = await fetch(`/api/admin/govinfo/package?packageid=${encodeURIComponent(packageId)}`);
+    const response = await fetch(`${ADMIN}/api/admin/govinfo/package?packageid=${encodeURIComponent(packageId)}`);
     const body = await response.json();
     if (!response.ok) throw new Error(body.error);
     const xml = modifyXML(body.xml);
