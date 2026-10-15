@@ -1,0 +1,6 @@
+{
+  "name": "@populegis/db",
+  "private": true,
+  "main": "src/schema.ts",
+  "types": "src/schema.ts"
+}
