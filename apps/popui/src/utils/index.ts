@@ -1,6 +1,37 @@
 import { type ProvisionRecord } from '@populegis/shared';
 import allProvisionTypes from './provisionTypes.json';
 
+export const billTypeGroups: Record<string, string[]> = {
+  'Bills (H.R. or S.)': ['HR', 'S'],
+  'Resolutions (H.Res. or S.Res.)': ['HRES', 'SRES'],
+  'Joint Resolutions (H.J.Res. or S.J.Res.)': ['HJRES', 'SJRES'],
+  'Concurrent Resolutions (H.Con.Res. or S.Con.Res.)': ['HCONRES', 'SCONRES'],
+};
+export const versionGroups: Record<string, string[]> = {
+  Introduced: ['ih', 'is'],
+  'Committee Consideration': ['rth', 'rts', 'pcs', 'pch'],
+  'Floor Consideration': ['rh', 'rs'],
+  'Passed One Chamber': ['eh', 'es', 'rdh', 'rds'],
+  'Passed Both Chambers': ['enr'],
+};
+export const congresses = [119, 118, 117, 116, 115, 114, 113, 112, 111, 110];
+
+export function isValidGovInfoPackageId(packageId: string): boolean {
+  // Extract and flatten the allowed values into regex alternative strings
+  const billTypesPattern = Object.values(billTypeGroups).flat().join('|');
+  const versionsPattern = Object.values(versionGroups).flat().join('|');
+  const congressesPattern = congresses.join('|');
+
+  // Build the strict regex pattern
+  // Uses 'i' flag for case-insensitive matching to support lowercase types (e.g., 'hr')
+  const regex = new RegExp(
+    `^BILLS-(${congressesPattern})(${billTypesPattern})([1-9][0-9]*)(${versionsPattern})$`,
+    'i'
+  );
+
+  return regex.test(packageId);
+}
+
 const aboveSectionLabels: Record<string, string> = {
   'division': 'Div.',
   'title': 'Title',

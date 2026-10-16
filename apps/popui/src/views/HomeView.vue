@@ -103,7 +103,7 @@ async function loadMore() {
 }
 
 useHead({
-  title: 'Browse Federal Bills & Legislation',
+  title: 'Home',
   titleTemplate: '%s - Popular Legislation',
   meta: [
     {

@@ -12,7 +12,7 @@ import { Vote } from '@/stores/lastVote';
 import type { Component } from 'vue';
 import { provisionsDBtoDisplayChunk } from '@/utils';
 import type { InferSelectModel } from 'drizzle-orm';
-import type { provisions as provisionsTable } from '../db/schema';
+import type { provisions as provisionsTable } from '@populegis/db';
 
 type ProvisionRow = InferSelectModel<typeof provisionsTable>;
 

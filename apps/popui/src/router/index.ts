@@ -4,6 +4,7 @@ import Bill from '@/views/Bill.vue'
 import Admin from '@/views/Admin.vue'
 import VoteList from '../views/VoteList.vue'
 import Governance from '@/views/Governance.vue'
+import { isValidGovInfoPackageId } from '@/utils'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,10 +23,16 @@ const router = createRouter({
       path: '/bill/:slug/:location?',
       name: 'bill',
       component: Bill,
-      props: (route) => ({
-        packageid: `BILLS-${route.params.slug}`,
-        location: route.params.location ? Number(route.params.location) : undefined
-      })
+      props: (route) => {
+        const slug = String(route.params.slug ?? '')
+        const location = route.params.location ? Number(route.params.location) : undefined
+        const candidate = `BILLS-${slug}`
+
+        if (isValidGovInfoPackageId(candidate)) {
+          return { packageid: candidate, location }
+        }
+        return { titleSlug: slug, location }
+      }
     },
     {
       path: '/governance/:location?',

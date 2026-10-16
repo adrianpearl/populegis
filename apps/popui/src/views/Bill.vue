@@ -14,18 +14,13 @@ import { toast } from 'vue-sonner';
 import { useHead } from '@unhead/vue';
 import { useApi } from '@/composables/useApi';
 import type { InferSelectModel } from 'drizzle-orm';
-import type { bills, provisions as provisionsTable } from '../db/schema';
+import type { bills, provisions as provisionsTable } from '@populegis/db';
 
 const props = defineProps({
-  packageid: {
-    type: String,
-    required: true
-  },
-  location: {
-    type: Number,
-    required: false
-  }
-});
+  packageid: { type: String, required: false },
+  titleSlug: { type: String, required: false },
+  location: { type: Number, required: false },
+})
 
 type BillRow = InferSelectModel<typeof bills> & { status: CongressBillStatus, provisionCount: number };
 type ProvisionRow = InferSelectModel<typeof provisionsTable>;
@@ -100,14 +95,17 @@ watch(() => props.location, (newLocation) => {
   }
 });
 
-watch([() => props.packageid, offset, limit, queryEnabled], () => {
-  if (!queryEnabled.value) return;
+watch([() => props.packageid, () => props.titleSlug, offset, limit, queryEnabled], () => {
+  if (!queryEnabled.value) return
   const params = new URLSearchParams({
-    packageid: props.packageid,
     offset: String(offset.value),
     limit: String(limit.value),
-  });
-  run(`/api/bill?${params}`);
+  })
+  if (props.packageid) params.set('packageid', props.packageid)
+  else if (props.titleSlug) params.set('slug', props.titleSlug)
+  else return
+
+  run(`/api/bill?${params}`)
 }, { immediate: true });
 
 watch(data, (next) => {
@@ -121,15 +119,18 @@ const form = computed(() => lastResult.value?.bill.form);
 const bill = computed(() => lastResult.value?.bill);
 const billStatus = computed(() => asBillStatus(bill.value?.status));
 const billId = computed(() => [bill.value?.billType, bill.value?.number].filter(Boolean).join(' '));
+const billPackageId = computed(() => bill.value?.packageid);
 
 const currentVote = ref<Vote>(Vote.NULL);
 const onVote = (vote: Vote) => {
-  currentVote.value = vote;
-  lastVoteStore.setState(props.packageid, 0, vote);
-  toast.info('Your interest in popular government is appreciated.', {
-    description: 'Please check back soon for further updates.',
-    closeButton: true,
-  });
+  if (billPackageId.value) {
+    currentVote.value = vote;
+    lastVoteStore.setState(billPackageId.value, 0, vote);
+    toast.info('Your interest in popular government is appreciated.', {
+      description: 'Please check back soon for further updates.',
+      closeButton: true,
+    });
+  }
 };
 
 // Meta tags and title
@@ -159,9 +160,10 @@ useHead({
 </script>
 
 <template>
-<Document :document-id="packageid" :mobile-page-title="bill ? billId : 'Bill'" :provisions="provisions ?? []"
-  :provision-count="bill?.provisionCount ?? 0" :location="location" :loading="loading" :current-vote="currentVote"
-  :nav-items="billNavItems" @load-more="limit += 100" @load-previous="backset += 50" @vote="onVote">
+<Document v-if="billPackageId" :document-id="billPackageId" :mobile-page-title="bill ? billId : 'Bill'"
+  :provisions="provisions ?? []" :provision-count="bill?.provisionCount ?? 0" :location="location" :loading="loading"
+  :current-vote="currentVote" :nav-items="billNavItems" @load-more="limit += 100" @load-previous="backset += 50"
+  @vote="onVote">
   <!-- Slot mapping for Shell's navbar title alignment -->
   <template #pagetitle>
     <div class="max-w-full flex justify-between gap-1">
@@ -190,8 +192,8 @@ useHead({
 
   <!-- Conditional rendering structural sub-views wrapper inside Document layout panels -->
   <template #navigationContent="{ activeItem, isMobile }">
-    <Toc v-if="activeItem === 'Table of Contents'" :packageid="packageid" />
-    <SearchBill v-else-if="activeItem === 'Search Bill'" :packageid="packageid" :mobile="isMobile" />
+    <Toc v-if="activeItem === 'Table of Contents'" :packageid="billPackageId" />
+    <SearchBill v-else-if="activeItem === 'Search Bill'" :packageid="billPackageId" :mobile="isMobile" />
     <JsonViewer v-else-if="activeItem === 'Bill Status'" :data="billStatus" root-name="status" />
     <BillActions v-else-if="activeItem === 'Bill Actions' && billStatus.actions" :actions="billStatus.actions" />
   </template>

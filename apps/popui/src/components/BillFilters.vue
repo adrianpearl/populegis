@@ -12,6 +12,7 @@ import senateMembers from '../utils/senateMembers.json';
 import legislativeSubjects from '../utils/legislativeSubjects.json';
 import policyAreas from '../utils/policyAreas.json';
 import type { BillSearch } from '@populegis/shared';
+import { congresses, billTypeGroups, versionGroups } from '@/utils/index.ts';
 
 defineProps({ mobile: Boolean });
 
@@ -23,20 +24,6 @@ watchDebounced(titleQuery, (title: string) => {
   search.value = { ...search.value, title: title || undefined };
 }, { debounce: 500, maxWait: 1000 });
 
-const billTypeGroups: Record<string, string[]> = {
-  'Bills (H.R. or S.)': ['HR', 'S'],
-  'Resolutions (H.Res. or S.Res.)': ['HRES', 'SRES'],
-  'Joint Resolutions (H.J.Res. or S.J.Res.)': ['HJRES', 'SJRES'],
-  'Concurrent Resolutions (H.Con.Res. or S.Con.Res.)': ['HCONRES', 'SCONRES'],
-};
-const versionGroups: Record<string, string[]> = {
-  Introduced: ['ih', 'is'],
-  'Committee Consideration': ['rth', 'rts', 'pcs', 'pch'],
-  'Floor Consideration': ['rh', 'rs'],
-  'Passed One Chamber': ['eh', 'es', 'rdh', 'rds'],
-  'Passed Both Chambers': ['enr'],
-};
-const congresses = [119, 118, 117, 116, 115, 114, 113, 112, 111, 110];
 const members = houseMembers.concat(senateMembers);
 
 function selectedGroups(values: string[], groups: Record<string, string[]>) {
@@ -158,8 +145,8 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
       <div v-else-if="currentFilter === 'Title'" class="flex flex-col gap-4">
         <Input v-model="titleQuery" placeholder="Enter bill title (in whole or in part)" />
         <label class="flex items-center space-x-3 text-sm text-gray-700 dark:text-zinc-400">
-          <Switch :model-value="search.includeOfficialTitle"
-            @update:model-value="set('includeOfficialTitle', $event)" class="mr-2" />
+          <Switch :model-value="search.includeOfficialTitle" @update:model-value="set('includeOfficialTitle', $event)"
+            class="mr-2" />
           Include official title
         </label>
       </div>
