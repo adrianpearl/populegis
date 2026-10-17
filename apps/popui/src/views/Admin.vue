@@ -31,8 +31,15 @@ const error = ref('');
 const preview = ref<{ packageId: string; summary: BillSummary; status: StatusXml; provisions: ProvisionRecord[], form: string }>();
 const loadingUpsert = ref(false);
 const upsertButtonText = ref("Upsert");
+const manualPackageId = ref('');
 
 const ADMIN = import.meta.env.VITE_ADMIN_URL;
+
+async function openManual() {
+  const id = manualPackageId.value.trim();
+  if (!id) return;
+  await openPackage(id);
+}
 
 async function loadModified(reset = false) {
   if (reset) {
@@ -164,6 +171,12 @@ async function openPackage(packageId: string) {
       <Input type="date" v-model="from" />
       <Input type="date" v-model="to" />
       <Button type="submit">Load</Button>
+    </form>
+    <form class="mt-4 flex gap-2" @submit.prevent="openManual">
+      <Input v-model="manualPackageId" placeholder="BILLS-119hr1enr or 119hr1enr" class="font-mono" />
+      <Button type="submit" :disabled="!manualPackageId.trim() || loadingPreview">
+        Open package
+      </Button>
     </form>
     <p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
     <Loader v-if="loadingList && !packages.length" class="mt-4" />
