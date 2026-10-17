@@ -5,6 +5,7 @@ import Admin from '@/views/Admin.vue'
 import VoteList from '../views/VoteList.vue'
 import Governance from '@/views/Governance.vue'
 import { isValidGovInfoPackageId } from '@/utils'
+import Privacy from '@/views/Privacy.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,11 +47,7 @@ const router = createRouter({
     {
       path: '/privacy',
       name: 'privacy',
-      component: Governance,
-      props: (route) => ({
-        documentId: 'META-1',
-        location: 34
-      })
+      component: Privacy,
     },
     {
       path: '/profile/:username',
