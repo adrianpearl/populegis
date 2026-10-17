@@ -160,10 +160,9 @@ useHead({
 </script>
 
 <template>
-<Document v-if="billPackageId" :document-id="billPackageId" :mobile-page-title="bill ? billId : 'Bill'"
-  :provisions="provisions ?? []" :provision-count="bill?.provisionCount ?? 0" :location="location" :loading="loading"
-  :current-vote="currentVote" :nav-items="billNavItems" @load-more="limit += 100" @load-previous="backset += 50"
-  @vote="onVote">
+<Document :mobile-page-title="bill ? billId : 'Bill'" :provisions="provisions ?? []"
+  :provision-count="bill?.provisionCount ?? 0" :location="location" :loading="loading" :current-vote="currentVote"
+  :nav-items="billNavItems" @load-more="limit += 100" @load-previous="backset += 50" @vote="onVote">
   <!-- Slot mapping for Shell's navbar title alignment -->
   <template #pagetitle>
     <div class="max-w-full flex justify-between gap-1">
@@ -191,7 +190,7 @@ useHead({
   </template>
 
   <!-- Conditional rendering structural sub-views wrapper inside Document layout panels -->
-  <template #navigationContent="{ activeItem, isMobile }">
+  <template v-if="billPackageId" #navigationContent="{ activeItem, isMobile }">
     <Toc v-if="activeItem === 'Table of Contents'" :packageid="billPackageId" />
     <SearchBill v-else-if="activeItem === 'Search Bill'" :packageid="billPackageId" :mobile="isMobile" />
     <JsonViewer v-else-if="activeItem === 'Bill Status'" :data="billStatus" root-name="status" />

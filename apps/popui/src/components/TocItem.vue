@@ -30,7 +30,6 @@ function toTitleCase(str: string) {
 }
 
 const route = useRoute();
-const slug = route.params.slug;
 const routeLocation = computed(() => +(route.params.location ?? ''));
 
 const basePath = getBillBasePath(props.provision.packageid);

@@ -30,13 +30,6 @@ function like(value: string) {
   return `%${value.replace(/[%_\\]/g, '\\$&')}%`;
 }
 
-function slugify(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
-
 publicApi.get('/bills', async (c) => {
   const { queryClient, db } = createDb(c.env.HYPERDRIVE);
   try {
@@ -142,18 +135,13 @@ publicApi.get('/bill', async (c) => {
     if (packageid) {
       bill = await db.query.bills.findFirst({ where: eq(bills.packageid, packageid) })
     } else if (titleSlug) {
-      const candidates = await db.query.bills.findMany({
-        where: sql`lower(regexp_replace(${bills.shortTitle}, '[^a-zA-Z0-9]+', '-', 'g')) = ${titleSlug}`,
-        orderBy: [desc(bills.congress), desc(bills.congress)], // prefer newest
-        limit: 1,
-      })
-      bill = candidates[0]
-      packageid = bill.packageid;
+      bill = await db.query.bills.findFirst({ where: eq(bills.slug, titleSlug) });
     } else {
       return c.json({ error: 'packageid or slug is required' }, 400)
     }
 
     if (!bill) return c.json({ error: 'Not found' }, 404);
+    packageid = bill.packageid;
 
     const offset = Math.max(Number(c.req.query('offset')) || 0, 0);
     const limit = Math.min(Number(c.req.query('limit')) || 250, 1000);

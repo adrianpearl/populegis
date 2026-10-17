@@ -22,7 +22,6 @@ interface NavItem {
 }
 
 const props = defineProps<{
-  documentId: string;
   mobilePageTitle: string;
   provisions: ProvisionRow[];
   provisionCount: number;

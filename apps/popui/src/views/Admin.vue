@@ -68,6 +68,13 @@ function statusXmlToJson(xml: string) {
   return nodes(doc.documentElement.parentNode === doc ? doc.documentElement : doc);
 }
 
+function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 function billFromPreview(packageid: string, summary: BillSummary, statusXml: StatusXml, form: string) {
   const status = statusXml.bill;
   const displayTitle = status.titles ? status.titles.find((t: { titleType: string }) => t.titleType === 'Display Title')?.title : '';
@@ -89,7 +96,7 @@ function billFromPreview(packageid: string, summary: BillSummary, statusXml: Sta
     currentChamber: summary.currentChamber,
     status,
     sponsor: status.sponsors?.[0] ?? null,
-    slug: summary.packageId.replace(/^BILLS-/, ''),
+    slug: slugify(shortTitle),
     form,
   };
 }
