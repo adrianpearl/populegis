@@ -112,7 +112,7 @@ watch(data, (next) => {
   if (!next) return;
   lastResult.value = next;
   lastAppearedStore.setTime(new Date().getTime());
-});
+}, { immediate: true });
 
 const provisions = computed(() => lastResult.value?.provisions);
 const form = computed(() => lastResult.value?.bill.form);
