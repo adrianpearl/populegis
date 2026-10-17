@@ -6,6 +6,7 @@ import { useDark, useToggle } from '@vueuse/core';
 import { Home, FileCode2, Database, Sun, Moon, FolderGit2, ExternalLink, Menu, Landmark, FolderLock } from '@lucide/vue';
 import Tooltip from '@/components/Tooltip.vue';
 import BillSearch from '@/components/BillSearch.vue';
+import NavItem from '@/components/NavItem.vue';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -104,7 +105,11 @@ const navItems = computed(() => [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent :align="'start'" class="w-dvw border-none rounded-none px-2 py-3">
-            <DropdownMenuItem as-child v-for="item in navItems.filter(d => d.show)">
+            <DropdownMenuItem as-child v-for="item in navItems.filter(d => d.show)" :key="item.tooltip">
+              <NavItem large :to="item.props.to" :href="item.props.href" :icon="item.icon" :label="item.tooltip"
+                :action="item.action" />
+            </DropdownMenuItem>
+            <DropdownMenuItem as-child v-for="item in navItems.filter(d => d.show)" class="hidden">
               <component :is="item.props.href ? 'a' : 'router-link'" :to="item.props.to ?? ''"
                 :href="item.props.href ?? ''">
                 <Button class="w-full justify-start" variant="ghost" @click="item.action ? item.action() : null">
@@ -151,23 +156,14 @@ const navItems = computed(() => [
     </div>
     <div class="sticky top-0 bg-background z-20">
       <div class="flex flex-col gap-0.5 items-start xl:hidden">
-        <Tooltip v-for="item in navItems.filter(d => d.show)" :content="item.tooltip" placement="right">
-          <component :is="item.props.href ? 'a' : 'router-link'" :to="item.props.to ?? ''"
-            :href="item.props.href ?? ''">
-            <Button variant="ghost" size="icon" @click="item.action ? item.action() : null">
-              <component :is="item.icon" />
-            </Button>
-          </component>
+        <Tooltip v-for="item in navItems.filter(d => d.show)" :key="item.tooltip" :content="item.tooltip"
+          placement="right">
+          <NavItem :to="item.props.to" :href="item.props.href" :icon="item.icon" :action="item.action" />
         </Tooltip>
       </div>
       <div class="hidden xl:flex flex-col gap-1 items-start">
-        <component v-for="item in navItems.filter(d => d.show)" :is="item.props.href ? 'a' : 'router-link'"
-          :to="item.props.to ?? ''" :href="item.props.href ?? ''" class="w-full">
-          <Button variant="ghost" class="w-full justify-start" @click="item.action ? item.action() : null">
-            <component :is="item.icon" />
-            <span class="text-xs">{{ item.tooltip }}</span>
-          </Button>
-        </component>
+        <NavItem v-for="item in navItems.filter(d => d.show)" :key="item.tooltip" :to="item.props.to"
+          :href="item.props.href" :icon="item.icon" :label="item.tooltip" :action="item.action" />
       </div>
     </div>
   </div>

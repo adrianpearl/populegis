@@ -9,7 +9,7 @@ import { useApi } from '@/composables/useApi';
 import { useLastVoteStore, Vote } from '@/stores/lastVote';
 import { toast } from 'vue-sonner';
 import type { InferSelectModel } from 'drizzle-orm';
-import type { governanceDocuments, provisions as provisionsTable } from '../db/schema';
+import type { governanceDocuments, provisions as provisionsTable } from '@populegis/db';
 
 type Doc = InferSelectModel<typeof governanceDocuments>;
 type ProvisionRow = InferSelectModel<typeof provisionsTable>;
@@ -54,7 +54,6 @@ function onVote(vote: Vote) {
 
 <template>
   <Document 
-    :document-id="props.documentId" 
     :mobile-page-title="data?.document.documentId ?? 'Governance'"
     :provisions="data?.provisions ?? []" 
     :provision-count="data?.provisionCount ?? 0" 
