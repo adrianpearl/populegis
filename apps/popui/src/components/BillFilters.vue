@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { watchDebounced } from '@vueuse/core';
 import { ListFilter, X } from '@lucide/vue';
 import SearchSelect from './SearchSelect.vue';
+import MultiSearchSelect from './MultiSearchSelect.vue';
 import CheckboxGroup from './CheckboxGroup.vue';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -53,7 +54,7 @@ const filters = [
   { name: 'Sponsor', value: () => search.value.sponsorName, clear: () => ({ sponsorName: undefined }) },
   { name: 'Appropriations', value: () => search.value.appropriationsOnly, clear: () => ({ appropriationsOnly: false }) },
   { name: 'Policy Area', value: () => search.value.policyArea, clear: () => ({ policyArea: undefined }) },
-  { name: 'Legislative Subjects', value: () => search.value.legislativeSubject, clear: () => ({ legislativeSubject: undefined }) },
+  { name: 'Legislative Subjects', value: () => search.value.legislativeSubjects, clear: () => ({ legislativeSubjects: [] }) },
 ];
 
 function isSet(value: unknown) {
@@ -75,16 +76,17 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
 </script>
 
 <template>
-<div :class="mobile ? '' : 'flex flex-col gap-2 dark:text-zinc-300'">
+<div :class="mobile ? '' : 'flex flex-col gap-2'">
   <div class="flex gap-2 items-center" :class="mobile
-    ? 'overflow-x-auto py-2 px-5 dark:border-zinc-800 text-gray-700'
+    ? 'overflow-x-auto py-2 px-5 dark:border-zinc-800'
     : 'flex-wrap py-2'">
     <span v-if="mobile" class="text-primary">
       <ListFilter :size="16" />
     </span>
-    <Button v-for="filter of filters" :key="filter.name" size="xs" variant="secondary"
+    <Button v-for="filter of filters" :key="filter.name" :size="mobile ? 'sm' : 'xs'"
+      :variant="currentFilter === filter.name ? 'default' : 'secondary'"
       @click="currentFilter = currentFilter === filter.name ? undefined : filter.name">
-      <span :class="currentFilter === filter.name && mobile ? 'font-semibold' : ''">{{ filter.name }}</span>
+      <span>{{ filter.name }}</span>
       <span v-if="isSet(filter.value())" class="font-semibold" :class="mobile ? 'text-xs' : ''">
         {{ display(filter.value()) }}
       </span>
@@ -138,9 +140,8 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
       <SearchSelect v-else-if="currentFilter === 'Policy Area'" :model-value="search.policyArea ?? ''"
         @update:model-value="set('policyArea', $event || undefined)" :options="policyAreas"
         placeholder="Enter a policy area" :mobile="mobile" />
-      <SearchSelect v-else-if="currentFilter === 'Legislative Subjects'" :model-value="search.legislativeSubject ?? ''"
-        @update:model-value="set('legislativeSubject', $event || undefined)" :options="legislativeSubjects"
-        placeholder="Enter a legislative subject" :mobile="mobile" />
+      <MultiSearchSelect v-else-if="currentFilter === 'Legislative Subjects'" v-model="search.legislativeSubjects"
+        :options="legislativeSubjects" placeholder="Enter a legislative subject" :mobile="mobile" />
 
       <div v-else-if="currentFilter === 'Title'" class="flex flex-col gap-4">
         <Input v-model="titleQuery" placeholder="Enter bill title (in whole or in part)" />

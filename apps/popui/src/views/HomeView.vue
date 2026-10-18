@@ -27,7 +27,7 @@ const emptyFilters = (): BillSearch => ({
   sponsorName: '',
   appropriationsOnly: false,
   policyArea: '',
-  legislativeSubject: '',
+  legislativeSubjects: [],
 });
 
 const route = useRoute();

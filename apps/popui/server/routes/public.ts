@@ -64,8 +64,19 @@ publicApi.get('/bills', async (c) => {
     if (filters.policyArea) {
       where.push(sql`${bills.status} @> cast(${JSON.stringify({ policyArea: { name: filters.policyArea } })} as jsonb)`);
     }
-    if (filters.legislativeSubject) {
-      where.push(sql`${bills.status} @> cast(${JSON.stringify({ subjects: { legislativeSubjects: [{ name: filters.legislativeSubject }] } })} as jsonb)`);
+    if (filters.legislativeSubjects) {
+      const subjects = Array.isArray(filters.legislativeSubjects)
+        ? filters.legislativeSubjects
+        : [filters.legislativeSubjects];
+
+      if (subjects.length) {
+        const subjectConditions = subjects.map((name) =>
+          sql`${bills.status} @> cast(${JSON.stringify({
+            subjects: { legislativeSubjects: [{ name }] },
+          })} as jsonb)`,
+        );
+        where.push(or(...subjectConditions)!);
+      }
     }
 
     const rows = await db.query.bills.findMany({

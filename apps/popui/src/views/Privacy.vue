@@ -18,7 +18,7 @@ useHead({
     <div class="text-2xl font-semibold">Privacy Policy</div>
   </template>
   <template #main>
-    <div class="prose prose-zinc dark:prose-invert max-w-none px-2 pb-12">
+    <div class="prose prose-zinc dark:prose-invert max-w-none px-4 pb-12">
       <p class="text-sm text-muted-foreground">Last updated: October 17, 2026</p>
 
       <p>

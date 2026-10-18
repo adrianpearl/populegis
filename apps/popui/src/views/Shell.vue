@@ -117,12 +117,15 @@ const navItems = computed(() => [
                 </Button>
               </component>
             </DropdownMenuItem>
-            <div class="text-xs text-muted-foreground m-2">
+            <div class="text-xs text-muted-foreground">
               To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data
-              rates may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <a
-                class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of Service</a> and <a
+              rates
+              may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <router-link
+                to="/governance" class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of
+                Service</router-link> and
+              <router-link to="/privacy"
                 class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
-                Policy</a>.
+                Policy</router-link>.
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -193,10 +196,11 @@ const navItems = computed(() => [
       <div class="mr-6 my-4">
         <div class="text-xs text-muted-foreground">
           To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data rates
-          may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <a
-            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of Service</a> and <a
-            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
-            Policy</a>.
+          may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <router-link
+            to="/governance" class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of
+            Service</router-link> and
+          <router-link to="/privacy" class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
+            Policy</router-link>.
         </div>
       </div>
     </div>

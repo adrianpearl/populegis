@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@floating-ui/vue": "^2.0.1",
-    "@lucide/vue": "^1.52.0",
+    "@lucide/vue": "^1.57.0",
     "@populegis/db": "workspace:*",
     "@populegis/shared": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
@@ -22,6 +22,7 @@
     "@vueuse/core": "^15.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn": "^0.5.0",
     "drizzle-orm": "0.45.3",
     "hono": "^4.13.13",
     "pinia": "^4.0.3",

@@ -16,7 +16,7 @@ export type BillSearch = {
   sponsorName?: string;
   appropriationsOnly: boolean;
   policyArea?: string;
-  legislativeSubject?: string;
+  legislativeSubjects?: string[];
 };
 
 export const emptyBillSearch = (): BillSearch => ({

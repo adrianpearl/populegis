@@ -45,7 +45,7 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(vue@3.5.44(typescript@6.0.3))
       '@lucide/vue':
-        specifier: ^1.52.0
+        specifier: ^1.57.0
         version: 1.57.0(vue@3.5.44(typescript@6.0.3))
       '@populegis/db':
         specifier: workspace:*
@@ -68,6 +68,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      cn:
+        specifier: ^0.5.0
+        version: 0.5.0
       drizzle-orm:
         specifier: 0.45.3
         version: 0.45.3(@cloudflare/workers-types@5.20261014.1)(@types/pg@8.23.1)(postgres@3.4.9)
@@ -1562,6 +1565,11 @@ packages:
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
+
+  cn@0.5.0:
+    resolution: {integrity: sha512-JGEixZEpfFXm1P5uXwvEobOFLlHwIWi5v4tjd1ZwfiYmcEilkuD2l+054rvJcYCR1B+uVThHeUbgmNz1FwuxuA==}
+    engines: {node: '>=22'}
+    hasBin: true
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
@@ -3630,6 +3638,8 @@ snapshots:
       clsx: 2.1.1
 
   clsx@2.1.1: {}
+
+  cn@0.5.0: {}
 
   confbox@0.1.8: {}
 
