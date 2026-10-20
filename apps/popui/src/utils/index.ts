@@ -81,7 +81,7 @@ export function pTagBreadcrumbs(provisionTag: string) {
   return tagTypes.slice(0, 1).map((d, i) => `${d} ${tagEnums[i]}`).join('  ') + subProvisionEnums.join('');
 }
 
-const subSectionTypes = ['subsection', 'paragraph', 'subparagraph', 'clause', 'subclause', 'item', 'subitem'];
+const subSectionTypes = ['subsection', 'paragraph', 'subparagraph', 'clause', 'subclause', 'item', 'subitem', 'sms-example-flow', 'sms-signup-assistant'];
 
 export function provisionDisplayTag(provisionTag: string, provisionType: string, header: string | null | undefined, enumText: string | null | undefined) {
   if (!provisionTag || !provisionType) return '';

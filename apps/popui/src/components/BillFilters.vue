@@ -73,6 +73,24 @@ function clear(patch: Partial<BillSearch>) {
 function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
   search.value = { ...search.value, [key]: value };
 }
+
+function clearAll() {
+  titleQuery.value = ''
+  search.value = {
+    congress: [],
+    originChamber: undefined,
+    billTypes: [],
+    number: undefined,
+    title: undefined,
+    includeOfficialTitle: true,
+    versions: [],
+    sponsorName: undefined,
+    appropriationsOnly: false,
+    policyArea: undefined,          // new field name
+    legislativeSubjects: undefined,
+  }
+  currentFilter.value = undefined
+}
 </script>
 
 <template>
@@ -94,6 +112,11 @@ function set<K extends keyof BillSearch>(key: K, value: BillSearch[K]) {
         :class="mobile ? '' : 'px-0.5 rounded-full hover:bg-primary/10'">
         <X :size="16" />
       </span>
+    </Button>
+    <!-- after the v-for of filter Buttons, still inside the flex container -->
+    <Button v-if="filters.some(f => isSet(f.value()))" :size="mobile ? 'sm' : 'xs'" variant="ghostDestructive"
+      class="text-muted-foreground" @click="clearAll">
+      Clear all
     </Button>
   </div>
 

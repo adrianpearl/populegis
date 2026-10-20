@@ -77,8 +77,6 @@ watch([filters, orderField, orderDir], () => {
   const next = {
     ...route.query,
     filters: JSON.stringify(compactFilters(filters.value)),
-    orderField: orderField.value,
-    orderDir: orderDir.value,
   };
   if (JSON.stringify(next) === JSON.stringify(route.query)) return;
   router.replace({ query: next });
@@ -143,26 +141,6 @@ useHead({
   </template>
   <template #sidebar>
     <div class="flex flex-col divide-y-2 dark:divide-gray-500">
-      <div class="text-gray-700 dark:text-zinc-300 py-3 px-2">
-        <div class="flex gap-2 items-center mb-2">
-          <ArrowDownWideNarrow :size="18" />
-          <span>Order By</span>
-        </div>
-        <div class="flex gap-2">
-          <select v-model="orderField"
-            class="p-2 rounded-sm bg-white dark:bg-transparent border dark:border-gray-600 text-xs">
-            <option value="dateIssued">Date Issued</option>
-            <option value="lastModified">Last Modified</option>
-            <option value="lastAction">Last Action</option>
-            <option value="lastUpdate">Last Update</option>
-          </select>
-          <select v-model="orderDir"
-            class="p-2 rounded-sm bg-white dark:bg-transparent border dark:border-gray-600 text-xs">
-            <option value="desc">desc</option>
-            <option value="asc">asc</option>
-          </select>
-        </div>
-      </div>
       <div class="text-gray-700 dark:text-zinc-300 py-3 px-2">
         <div class="flex gap-2 items-center mb-2">
           <Funnel :size="18" />

@@ -28,7 +28,8 @@
   </PopoverTrigger>
 
   <PopoverContent class="p-0 max-w-[100vw]"
-    :class="mobile ? 'w-[calc(100vw-2rem)]' : 'w-(--reka-popover-trigger-width)'" align="start">
+    :class="mobile ? 'w-[calc(100vw-2rem)]' : 'w-(--reka-popover-trigger-width)'" side="bottom" :side-offset="4"
+    align="start" :avoid-collisions="!mobile" :collision-padding="16">
     <Command>
       <CommandInput v-model="searchQuery" :placeholder="placeholder" class="border-none focus:ring-0" />
       <CommandEmpty>No results found.</CommandEmpty>
