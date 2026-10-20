@@ -55,6 +55,15 @@ const router = createRouter({
       component: VoteList,
     },
   ],
+  scrollBehavior(_to, _from, savedPosition) {
+    // Retain scroll depth ONLY when clicking Browser Back/Forward buttons
+    if (savedPosition) {
+      return savedPosition
+    }
+
+    // For all standard links, force the view to start at the top
+    return { top: 0 }
+  },
 })
 
 export default router
