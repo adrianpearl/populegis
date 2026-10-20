@@ -4,12 +4,12 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "popui-admin",
+	"name": "popui-sms",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
 	"compatibility_date": "2026-10-01",
-	"main": "server/admin.ts",
+	"main": "server/index.ts",
 	"observability": {
 		"enabled": true
 	},
