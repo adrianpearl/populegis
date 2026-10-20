@@ -39,18 +39,26 @@ export const commentsRelations = relations(comments, ({one, many}) => ({
 
 export const votesRelations = relations(votes, ({one}) => ({
 	provision_location: one(provisions, {
-		fields: [votes.packageid, votes.location],
-		references: [provisions.packageid, provisions.location],
+		fields: [votes.location],
+		references: [provisions.packageid],
 		relationName: "votes_location_provisions_packageid"
 	}),
 	user: one(users, {
 		fields: [votes.userId],
 		references: [users.id]
 	}),
+	provision_location: one(provisions, {
+		fields: [votes.location],
+		references: [provisions.location],
+		relationName: "votes_location_provisions_location"
+	}),
 }));
 
 export const provisionsRelations = relations(provisions, ({many}) => ({
 	votes_location: many(votes, {
 		relationName: "votes_location_provisions_packageid"
+	}),
+	votes_location: many(votes, {
+		relationName: "votes_location_provisions_location"
 	}),
 }));

@@ -1,4 +1,4 @@
-import { pgTable, index, varchar, jsonb, timestamp, text, date, unique, integer, foreignKey, serial, check, primaryKey, pgView, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, varchar, jsonb, timestamp, text, date, foreignKey, serial, check, integer, unique, primaryKey, pgView, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const chamber = pgEnum("chamber", ['SENATE', 'HOUSE'])
@@ -22,31 +22,6 @@ export const governanceDocuments = pgTable("governance_documents", {
 	adoptedAt: date("adopted_at"),
 	body: text(),
 });
-
-export const bills = pgTable("bills", {
-	packageid: text().primaryKey().notNull(),
-	congress: integer().notNull(),
-	session: integer().notNull(),
-	billType: text("bill_type").notNull(),
-	number: integer().notNull(),
-	version: text(),
-	officialTitle: text("official_title").notNull(),
-	shortTitle: text("short_title"),
-	dateIssued: date("date_issued").notNull(),
-	lastModified: timestamp("last_modified", { mode: 'string' }).defaultNow().notNull(),
-	originChamber: text("origin_chamber"),
-	currentChamber: text("current_chamber"),
-	form: text(),
-	sponsor: jsonb(),
-	slug: text(),
-	status: jsonb().default({}).notNull(),
-	lastUpdate: timestamp("last_update", { mode: 'string' }),
-	lastAction: date("last_action"),
-	numCosponsors: integer("num_cosponsors").default(0),
-	lastVote: date("last_vote"),
-}, (table) => [
-	unique("bills_slug_key").on(table.slug),
-]);
 
 export const tags = pgTable("tags", {
 	tagId: serial("tag_id").primaryKey().notNull(),
@@ -94,6 +69,32 @@ export const comments = pgTable("comments", {
 			name: "comments_reply_to_comment_fkey"
 		}),
 	check("user_day_comment_range", sql`(user_day_comment >= 0) AND (user_day_comment <= 4)`),
+]);
+
+export const bills = pgTable("bills", {
+	packageid: text().primaryKey().notNull(),
+	congress: integer().notNull(),
+	session: integer().notNull(),
+	billType: text("bill_type").notNull(),
+	number: integer().notNull(),
+	version: text(),
+	officialTitle: text("official_title").notNull(),
+	shortTitle: text("short_title"),
+	dateIssued: date("date_issued").notNull(),
+	lastModified: timestamp("last_modified", { mode: 'string' }).defaultNow().notNull(),
+	originChamber: text("origin_chamber"),
+	currentChamber: text("current_chamber"),
+	form: text(),
+	sponsor: jsonb(),
+	slug: text(),
+	status: jsonb().default({}).notNull(),
+	lastUpdate: timestamp("last_update", { mode: 'string' }),
+	lastAction: date("last_action"),
+	numCosponsors: integer("num_cosponsors").default(0),
+	lastVote: date("last_vote"),
+	committeeSystemCodes: text("committee_system_codes").array().generatedAlwaysAs(sql`extract_committee_codes(status)`),
+}, (table) => [
+	unique("bills_slug_key").on(table.slug),
 ]);
 
 export const votes = pgTable("votes", {

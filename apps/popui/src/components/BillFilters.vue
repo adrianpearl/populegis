@@ -14,6 +14,7 @@ import legislativeSubjects from '../utils/legislativeSubjects.json';
 import policyAreas from '../utils/policyAreas.json';
 import type { BillSearch } from '@populegis/shared';
 import { congresses, billTypeGroups, versionGroups } from '@/utils/index.ts';
+import committees from '@/utils/committees.json';
 
 defineProps({ mobile: Boolean });
 
@@ -55,6 +56,7 @@ const filters = [
   { name: 'Appropriations', value: () => search.value.appropriationsOnly, clear: () => ({ appropriationsOnly: false }) },
   { name: 'Policy Area', value: () => search.value.policyArea, clear: () => ({ policyArea: undefined }) },
   { name: 'Legislative Subjects', value: () => search.value.legislativeSubjects, clear: () => ({ legislativeSubjects: [] }) },
+  { name: 'Committees', value: () => search.value.committeeSystemCode, clear: () => ({ committeeSystemCode: [] }) },
 ];
 
 function isSet(value: unknown) {
@@ -88,6 +90,7 @@ function clearAll() {
     appropriationsOnly: false,
     policyArea: undefined,          // new field name
     legislativeSubjects: undefined,
+    committeeSystemCode: [],
   }
   currentFilter.value = undefined
 }
@@ -164,7 +167,8 @@ function clearAll() {
         @update:model-value="set('policyArea', $event || undefined)" :options="policyAreas"
         placeholder="Enter a policy area" :mobile="mobile" />
       <MultiSearchSelect v-else-if="currentFilter === 'Legislative Subjects'" v-model="search.legislativeSubjects"
-        :options="legislativeSubjects" placeholder="Enter a legislative subject" :mobile="mobile" />
+        :options="legislativeSubjects.map(d => ({ label: d, value: d }))" placeholder="Enter a legislative subject"
+        :mobile="mobile" />
 
       <div v-else-if="currentFilter === 'Title'" class="flex flex-col gap-4">
         <Input v-model="titleQuery" placeholder="Enter bill title (in whole or in part)" />
@@ -174,6 +178,10 @@ function clearAll() {
           Include official title
         </label>
       </div>
+
+      <MultiSearchSelect v-else-if="currentFilter === 'Committees'" v-model="search.committeeSystemCode"
+        :options="committees.map(d => ({ label: d.name, value: d.system_code }))" placeholder="Search committees"
+        :mobile="mobile" />
 
       <div v-if="mobile" class="flex justify-end">
         <Button variant="outline" class="shadow-none bg-transparent" @click="currentFilter = undefined">Done</Button>

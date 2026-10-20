@@ -9,7 +9,7 @@
           <template v-if="selected.length <= 5">
             <span v-for="value in selected" :key="value"
               class="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-              <span class="truncate max-w-35">{{ value }}</span>
+              <span class="truncate max-w-35">{{ labelFor(value) }}</span>
               <button type="button"
                 class="rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 @click.stop="toggle(value)">
@@ -34,27 +34,25 @@
       <CommandInput v-model="searchQuery" :placeholder="placeholder" class="border-none focus:ring-0" />
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandList class="max-h-60 overflow-y-auto">
-        <!-- Selected options first -->
         <CommandGroup v-if="selectedInView.length">
-          <CommandItem v-for="option in selectedInView" :key="`selected-${option}`" :value="option"
-            @select="toggle(option)">
+          <CommandItem v-for="option in selectedInView" :key="`selected-${option.value}`" :value="option.value"
+            @select="toggle(option.value)">
             <Check class="mr-2 h-4 w-4 shrink-0 opacity-100" />
-            <span class="block wrap-break-word overflow-wrap-anywhere min-w-0 flex-1">{{ option }}</span>
+            <span class="block wrap-break-word overflow-wrap-anywhere min-w-0 flex-1">{{ option.label }}</span>
           </CommandItem>
         </CommandGroup>
 
         <CommandSeparator v-if="selectedInView.length && unselectedInView.length" />
 
-        <!-- Unselected options -->
         <CommandGroup v-if="unselectedInView.length">
-          <CommandItem v-for="option in unselectedInView" :key="option" :value="option" @select="toggle(option)">
+          <CommandItem v-for="option in unselectedInView" :key="option.value" :value="option.value"
+            @select="toggle(option.value)">
             <Check class="mr-2 h-4 w-4 shrink-0 opacity-0" />
-            <span class="block wrap-break-word overflow-wrap-anywhere min-w-0 flex-1">{{ option }}</span>
+            <span class="block wrap-break-word overflow-wrap-anywhere min-w-0 flex-1">{{ option.label }}</span>
           </CommandItem>
         </CommandGroup>
       </CommandList>
 
-      <!-- Remaining count note -->
       <div v-if="remainingCount > 0" class="border-t px-3 py-2 text-xs text-muted-foreground">
         {{ remainingCount }} more {{ remainingCount === 1 ? 'option' : 'options' }} — search to find them
       </div>
@@ -77,8 +75,10 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
+export type SelectOption = { label: string; value: string }
+
 const props = defineProps<{
-  options: string[]
+  options: SelectOption[]
   placeholder: string
   mobile?: boolean
 }>()
@@ -97,22 +97,34 @@ const selected = computed({
   },
 })
 
+const labelMap = computed(() => {
+  const map = new Map<string, string>()
+  for (const opt of props.options) map.set(opt.value, opt.label)
+  return map
+})
+
+function labelFor(value: string) {
+  return labelMap.value.get(value) ?? value
+}
+
 const filteredOptions = computed(() => {
   if (!searchQuery.value) return props.options
   const q = searchQuery.value.toLowerCase()
-  return props.options.filter((option) => option.toLowerCase().includes(q))
+  return props.options.filter((option) =>
+    option.label.toLowerCase().includes(q) || option.value.toLowerCase().includes(q)
+  )
 })
 
 const selectedInView = computed(() => {
   const set = new Set(selected.value)
-  return filteredOptions.value.filter((option) => set.has(option)).slice(0, LIMIT)
+  return filteredOptions.value.filter((option) => set.has(option.value)).slice(0, LIMIT)
 })
 
 const unselectedInView = computed(() => {
   const set = new Set(selected.value)
   const remainingSlots = Math.max(0, LIMIT - selectedInView.value.length)
   return filteredOptions.value
-    .filter((option) => !set.has(option))
+    .filter((option) => !set.has(option.value))
     .slice(0, remainingSlots)
 })
 
@@ -121,11 +133,11 @@ const remainingCount = computed(() => {
   return Math.max(0, filteredOptions.value.length - shown)
 })
 
-function toggle(option: string) {
+function toggle(value: string) {
   const current = selected.value
-  const next = current.includes(option)
-    ? current.filter((v) => v !== option)
-    : [...current, option]
+  const next = current.includes(value)
+    ? current.filter((v) => v !== value)
+    : [...current, value]
   selected.value = next
   searchQuery.value = ''
 }

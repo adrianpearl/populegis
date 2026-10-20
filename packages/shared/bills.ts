@@ -17,6 +17,7 @@ export type BillSearch = {
   appropriationsOnly: boolean;
   policyArea?: string;
   legislativeSubjects?: string[];
+  committeeSystemCode?: string[];
 };
 
 export const emptyBillSearch = (): BillSearch => ({

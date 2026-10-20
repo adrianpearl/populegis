@@ -78,6 +78,9 @@ publicApi.get('/bills', async (c) => {
         where.push(or(...subjectConditions)!);
       }
     }
+    if (filters.committeeSystemCode) {
+      where.push(sql`${filters.committeeSystemCode} = ANY(${bills.committeeSystemCodes})`);
+    }
 
     const rows = await db.query.bills.findMany({
       where: where.length ? and(...where) : undefined,

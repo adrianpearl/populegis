@@ -184,6 +184,12 @@ importers:
 
   packages/db:
     dependencies:
+      dotenv:
+        specifier: ^18.0.7
+        version: 18.0.7
+      drizzle-kit:
+        specifier: ^0.31.11
+        version: 0.31.11
       drizzle-orm:
         specifier: 0.45.3
         version: 0.45.3(@cloudflare/workers-types@5.20261014.1)(@types/pg@8.23.1)(postgres@3.4.9)

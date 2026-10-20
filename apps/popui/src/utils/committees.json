@@ -1,0 +1,202 @@
+[
+  {
+    "system_code": "hsag00",
+    "name": "Agriculture Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsap00",
+    "name": "Appropriations Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsas00",
+    "name": "Armed Services Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsbu00",
+    "name": "Budget Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsha00",
+    "name": "Committee on House Administration",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsed00",
+    "name": "Education and Workforce Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsif00",
+    "name": "Energy and Commerce Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsso00",
+    "name": "Ethics Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsba00",
+    "name": "Financial Services Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsfa00",
+    "name": "Foreign Affairs Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hshm00",
+    "name": "Homeland Security Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hlig00",
+    "name": "Intelligence (Permanent Select) Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsju00",
+    "name": "Judiciary Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsii00",
+    "name": "Natural Resources Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsgo00",
+    "name": "Oversight and Accountability Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsgo00",
+    "name": "Oversight and Government Reform Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsru00",
+    "name": "Rules Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hssy00",
+    "name": "Science, Space, and Technology Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hssm00",
+    "name": "Small Business Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hspw00",
+    "name": "Transportation and Infrastructure Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hsvr00",
+    "name": "Veterans' Affairs Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "hswm00",
+    "name": "Ways and Means Committee",
+    "chamber": "House"
+  },
+  {
+    "system_code": "ssaf00",
+    "name": "Agriculture, Nutrition, and Forestry Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssap00",
+    "name": "Appropriations Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssas00",
+    "name": "Armed Services Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssbk00",
+    "name": "Banking, Housing, and Urban Affairs Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssbu00",
+    "name": "Budget Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "sscm00",
+    "name": "Commerce, Science, and Transportation Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "sseg00",
+    "name": "Energy and Natural Resources Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssev00",
+    "name": "Environment and Public Works Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssfi00",
+    "name": "Finance Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssfr00",
+    "name": "Foreign Relations Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "sshr00",
+    "name": "Health, Education, Labor, and Pensions Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssga00",
+    "name": "Homeland Security and Governmental Affairs Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "slia00",
+    "name": "Indian Affairs Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "slin00",
+    "name": "Intelligence (Select) Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssju00",
+    "name": "Judiciary Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssra00",
+    "name": "Rules and Administration Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "sssb00",
+    "name": "Small Business and Entrepreneurship Committee",
+    "chamber": "Senate"
+  },
+  {
+    "system_code": "ssva00",
+    "name": "Veterans' Affairs Committee",
+    "chamber": "Senate"
+  }
+]
