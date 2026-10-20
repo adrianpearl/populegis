@@ -56,7 +56,12 @@ const filters = [
   { name: 'Appropriations', value: () => search.value.appropriationsOnly, clear: () => ({ appropriationsOnly: false }) },
   { name: 'Policy Area', value: () => search.value.policyArea, clear: () => ({ policyArea: undefined }) },
   { name: 'Legislative Subjects', value: () => search.value.legislativeSubjects, clear: () => ({ legislativeSubjects: [] }) },
-  { name: 'Committees', value: () => search.value.committeeSystemCode, clear: () => ({ committeeSystemCode: [] }) },
+  {
+    name: 'Committees',
+    label: () => search.value.committeeSystemCode?.map(d => committees.find(c => c.system_code == d)?.name),
+    value: () => search.value.committeeSystemCode,
+    clear: () => ({ committeeSystemCode: [] })
+  },
 ];
 
 function isSet(value: unknown) {
@@ -88,9 +93,9 @@ function clearAll() {
     versions: [],
     sponsorName: undefined,
     appropriationsOnly: false,
-    policyArea: undefined,          // new field name
+    policyArea: undefined,
     legislativeSubjects: undefined,
-    committeeSystemCode: [],
+    committeeSystemCode: undefined,
   }
   currentFilter.value = undefined
 }
@@ -109,7 +114,7 @@ function clearAll() {
       @click="currentFilter = currentFilter === filter.name ? undefined : filter.name">
       <span>{{ filter.name }}</span>
       <span v-if="isSet(filter.value())" class="font-semibold" :class="mobile ? 'text-xs' : ''">
-        {{ display(filter.value()) }}
+        {{ display((filter.label ?? filter.value)()) }}
       </span>
       <span v-if="isSet(filter.value())" @click.stop="clear(filter.clear())"
         :class="mobile ? '' : 'px-0.5 rounded-full hover:bg-primary/10'">
