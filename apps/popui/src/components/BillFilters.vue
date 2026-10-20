@@ -105,15 +105,16 @@ function clearAll() {
 <div :class="mobile ? '' : 'flex flex-col gap-2'">
   <div class="flex gap-2 items-center" :class="mobile
     ? 'overflow-x-auto py-2 px-5 dark:border-zinc-800'
-    : 'flex-wrap py-2'">
+    : 'flex-wrap py-2 overflow-x-hidden'">
     <span v-if="mobile" class="text-primary">
       <ListFilter :size="16" />
     </span>
-    <Button v-for="filter of filters" :key="filter.name" :size="mobile ? 'sm' : 'xs'"
+    <Button v-for="filter of filters" :key="filter.name" :size="mobile ? 'sm' : 'xs'" class="max-w-full"
       :variant="currentFilter === filter.name ? 'default' : 'secondary'"
       @click="currentFilter = currentFilter === filter.name ? undefined : filter.name">
       <span>{{ filter.name }}</span>
-      <span v-if="isSet(filter.value())" class="font-semibold" :class="mobile ? 'text-xs' : ''">
+      <span v-if="isSet(filter.value())" class="font-semibold text-ellipsis overflow-hidden"
+        :class="mobile ? 'text-xs' : ''">
         {{ display((filter.label ?? filter.value)()) }}
       </span>
       <span v-if="isSet(filter.value())" @click.stop="clear(filter.clear())"
