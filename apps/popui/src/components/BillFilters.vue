@@ -4,7 +4,6 @@ import { watchDebounced } from '@vueuse/core';
 import { ListFilter, X } from '@lucide/vue';
 import SearchSelect from './SearchSelect.vue';
 import MultiSearchSelect from './MultiSearchSelect.vue';
-import CheckboxGroup from './CheckboxGroup.vue';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from './ui/input/index.ts';
@@ -15,6 +14,7 @@ import policyAreas from '../utils/policyAreas.json';
 import type { BillSearch } from '@populegis/shared';
 import { congresses, billTypeGroups, versionGroups } from '@/utils/index.ts';
 import committees from '@/utils/committees.json';
+import ChoiceButtons from './ChoiceButtons.vue';
 
 defineProps({ mobile: Boolean });
 
@@ -35,6 +35,7 @@ function selectedGroups(values: string[], groups: Record<string, string[]>) {
 const selectedTypeGroups = computed({
   get: () => selectedGroups(search.value.billTypes ?? [], billTypeGroups),
   set: (names: string[]) => {
+    console.log(names);
     search.value = { ...search.value, billTypes: names.flatMap((name) => billTypeGroups[name] ?? []) };
   },
 });
@@ -134,28 +135,17 @@ function clearAll() {
     <div class="flex flex-col gap-3 text-sm" :class="mobile ? 'px-6 py-4' : ''">
       <div>{{ currentFilter }}</div>
 
-      <select v-if="currentFilter === 'Congress'" multiple class="w-full rounded-sm px-2"
-        :class="mobile ? 'border' : 'bg-zinc-50 dark:bg-zinc-700'" :value="search.congress"
-        @change="set('congress', Array.from(($event.target as HTMLSelectElement).selectedOptions).map((o) => Number(o.value)))">
-        <option v-for="congress of congresses" :key="congress" :value="congress">{{ congress }}</option>
-      </select>
+      <ChoiceButtons v-if="currentFilter === 'Congress'" v-model="search.congress" :options="congresses" multiple />
 
-      <div v-else-if="currentFilter === 'Chamber of Origin'" class="flex flex-col gap-2">
-        <label v-for="chamber of ['House', 'Senate']" :key="chamber" class="flex gap-2 items-center"
-          :class="mobile ? '' : 'text-xs'">
-          <input type="radio" class="accent-blue-600" name="chamber" :value="chamber.toUpperCase()"
-            :checked="search.originChamber === chamber.toUpperCase()"
-            @change="set('originChamber', chamber.toUpperCase())" />
-          {{ chamber }}
-        </label>
-      </div>
+      <ChoiceButtons v-else-if="currentFilter === 'Chamber of Origin'" v-model="search.originChamber"
+        :options="['House', 'Senate']" />
 
-      <CheckboxGroup v-else-if="currentFilter === 'Bill Type'" :options="Object.keys(billTypeGroups)"
-        v-model="selectedTypeGroups" />
+      <ChoiceButtons v-else-if="currentFilter === 'Bill Type'" :options="Object.keys(billTypeGroups)"
+        v-model="selectedTypeGroups" multiple />
       <Input v-else-if="currentFilter === 'Number'" type="number" placeholder="Enter bill number"
         :model-value="search.number" @update:model-value="set('number', $event ? Number($event) : undefined)" />
-      <CheckboxGroup v-else-if="currentFilter === 'Version'" :options="Object.keys(versionGroups)"
-        v-model="selectedVersionGroups" />
+      <ChoiceButtons v-else-if="currentFilter === 'Version'" :options="Object.keys(versionGroups)"
+        v-model="selectedVersionGroups" multiple />
 
       <div v-else-if="currentFilter === 'Sponsor'" :class="mobile ? '' : 'pb-10'">
         <SearchSelect :model-value="search.sponsorName ?? ''"

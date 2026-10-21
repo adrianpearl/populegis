@@ -117,7 +117,7 @@ const navItems = computed(() => [
                 </Button>
               </component>
             </DropdownMenuItem>
-            <div class="text-xs text-muted-foreground">
+            <div class="text-xs text-muted-foreground mt-8">
               To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data
               rates
               may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <router-link

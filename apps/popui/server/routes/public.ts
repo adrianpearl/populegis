@@ -26,6 +26,51 @@ function readFilters(raw: string | undefined): Partial<BillSearch> {
   }
 }
 
+function buildBillFilters(filters: Partial<BillSearch>): SQL[] {
+  const where: SQL[] = [];
+  where.push(sql`${bills.form} is not null and ${bills.form} <> ''`);
+  if (filters.congress?.length) where.push(inArray(bills.congress, filters.congress));
+  if (filters.originChamber) where.push(sql`lower(${bills.originChamber}) = lower(${filters.originChamber})`);
+  if (filters.billTypes?.length) where.push(inArray(sql`lower(${bills.billType})`, filters.billTypes.map((t) => t.toLowerCase())));
+  if (filters.number != null && filters.number !== ('' as unknown)) where.push(eq(bills.number, Number(filters.number)));
+  if (filters.title) {
+    const pattern = like(filters.title);
+    where.push(filters.includeOfficialTitle === false
+      ? ilike(bills.shortTitle, pattern)
+      : or(ilike(bills.shortTitle, pattern), ilike(bills.officialTitle, pattern))!);
+  }
+  if (filters.versions?.length) where.push(inArray(bills.version, filters.versions));
+  if (filters.sponsorName) where.push(sql`${bills.sponsor}::text ilike ${like(filters.sponsorName)}`);
+  if (filters.appropriationsOnly) {
+    where.push(sql`exists (
+      select 1 from provisions p
+      where p.packageid = ${bills.packageid}
+        and p.provision_type ~* 'appropriations'
+    )`);
+  }
+  if (filters.policyArea) {
+    where.push(sql`${bills.status} @> cast(${JSON.stringify({ policyArea: { name: filters.policyArea } })} as jsonb)`);
+  }
+  if (filters.legislativeSubjects) {
+    const subjects = Array.isArray(filters.legislativeSubjects)
+      ? filters.legislativeSubjects
+      : [filters.legislativeSubjects];
+    if (subjects.length) {
+      where.push(or(...subjects.map((name) =>
+        sql`${bills.status} @> cast(${JSON.stringify({
+          subjects: { legislativeSubjects: [{ name }] },
+        })} as jsonb)`
+      ))!);
+    }
+  }
+  if (filters.committeeSystemCode?.length) {
+    where.push(or(...filters.committeeSystemCode.map(
+      (code) => sql`${code} = ANY(${bills.committeeSystemCodes})`
+    ))!);
+  }
+  return where;
+}
+
 function like(value: string) {
   return `%${value.replace(/[%_\\]/g, '\\$&')}%`;
 }
@@ -40,51 +85,7 @@ publicApi.get('/bills', async (c) => {
     const limit = Math.min(Number(c.req.query('limit')) || 10, 50);
     const offset = Math.max(Number(c.req.query('offset')) || 0, 0);
 
-    const where: SQL[] = [];
-    where.push(sql`${bills.form} is not null and ${bills.form} <> ''`);
-    if (filters.congress?.length) where.push(inArray(bills.congress, filters.congress));
-    if (filters.originChamber) where.push(sql`lower(${bills.originChamber}) = lower(${filters.originChamber})`);
-    if (filters.billTypes?.length) where.push(inArray(sql`lower(${bills.billType})`, filters.billTypes.map((t) => t.toLowerCase())));
-    if (filters.number != null && filters.number !== ('' as unknown)) where.push(eq(bills.number, Number(filters.number)));
-    if (filters.title) {
-      const pattern = like(filters.title);
-      where.push(filters.includeOfficialTitle === false
-        ? ilike(bills.shortTitle, pattern)
-        : or(ilike(bills.shortTitle, pattern), ilike(bills.officialTitle, pattern))!);
-    }
-    if (filters.versions?.length) where.push(inArray(bills.version, filters.versions));
-    if (filters.sponsorName) where.push(sql`${bills.sponsor}::text ilike ${like(filters.sponsorName)}`);
-    if (filters.appropriationsOnly) {
-      where.push(sql`exists (
-        select 1 from provisions p
-        where p.packageid = ${bills.packageid}
-          and p.provision_type ~* 'appropriations'
-      )`);
-    }
-    if (filters.policyArea) {
-      where.push(sql`${bills.status} @> cast(${JSON.stringify({ policyArea: { name: filters.policyArea } })} as jsonb)`);
-    }
-    if (filters.legislativeSubjects) {
-      const subjects = Array.isArray(filters.legislativeSubjects)
-        ? filters.legislativeSubjects
-        : [filters.legislativeSubjects];
-
-      if (subjects.length) {
-        const subjectConditions = subjects.map((name) =>
-          sql`${bills.status} @> cast(${JSON.stringify({
-            subjects: { legislativeSubjects: [{ name }] },
-          })} as jsonb)`,
-        );
-        where.push(or(...subjectConditions)!);
-      }
-    }
-    if (filters.committeeSystemCode?.length) {
-      where.push(
-        or(...filters.committeeSystemCode.map(
-          (code) => sql`${code} = ANY(${bills.committeeSystemCodes})`
-        ))!
-      );
-    }
+    const where = buildBillFilters(filters);
 
     const rows = await db.query.bills.findMany({
       where: where.length ? and(...where) : undefined,
@@ -202,7 +203,10 @@ publicApi.get('/users/:username/votes', async (c) => {
     const limit = Math.min(Number(c.req.query('limit')) || 10, 50);
     const offset = Math.max(Number(c.req.query('offset')) || 0, 0);
 
-    const where: SQL[] = [eq(votes.userId, user.id)];
+    const where: SQL[] = [
+      eq(votes.userId, user.id),
+      ...buildBillFilters(filters),
+    ];
     // same filter pushes as /api/bills, against bills.*
     const rows = await db
       .select({ bill: bills, location: votes.location, voteOption: votes.voteOption, provision: provisions })
