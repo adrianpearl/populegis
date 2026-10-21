@@ -16,8 +16,8 @@
 	"upload_source_maps": true,
 	"hyperdrive": [
 		{
-			"binding": "DB_WRITE",
-			"id": "da1f9f3c95e54500999220d9a2deec18"
+			"binding": "SMS",
+			"id": "4607f780ba1243d6ab09c94e1b0507ad"
 		}
 	]
 	/**

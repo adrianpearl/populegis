@@ -5,7 +5,7 @@ import { and, eq } from 'drizzle-orm';
 import { smsSessions, users, votes } from '@populegis/db';
 import { createDb } from '../db';
 
-type Env = { DB_WRITE: Hyperdrive; TWILIO_AUTH_TOKEN: string };
+type Env = { SMS: Hyperdrive; TWILIO_AUTH_TOKEN: string };
 export const sms = new Hono<{ Bindings: Env }>();
 
 type Step = 'consent' | 'account';
@@ -52,7 +52,7 @@ sms.post('/', async (c) => {
   const from = String(form.get('From') ?? '');
   const body = String(form.get('Body') ?? '').trim();
   const [command, ...rest] = body.split(/\s+/);
-  const { queryClient, db } = createDb(c.env.DB_WRITE);
+  const { queryClient, db } = createDb(c.env.SMS);
 
   // Enforce robust keyword checking for compliance safety
   const cleanBody = body.trim().toUpperCase();
