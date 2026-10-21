@@ -32,13 +32,13 @@ const billPath = computed(() => getBillBasePath(bill.packageid));
 </script>
 
 <template>
-  <RouterLink v-if="bill" :to="billPath">
-    <div class="group hover:bg-muted/50" :class="context === 'search' ? 'p-3' : 'py-6 lg:px-4'">
-      <BillCardHeader :header-type="'main'" :bill="bill" class="text-xs" />
-      <div class="font-serif" :class="context === 'search' ? 'text-base' : 'text-2xl'">
-        {{ titlePrepend + (bill.shortTitle ?? bill.officialTitle) }}
-      </div>
-      <BillCardHeader :header-type="'sub'" :bill="bill" class="text-xs" />
+<RouterLink v-if="bill" :to="billPath">
+  <div class="group hover:bg-muted/50" :class="context === 'search' ? 'p-3' : 'py-6 lg:px-4'">
+    <BillCardHeader :header-type="'main'" :bill="bill" class="text-xs" />
+    <div class="font-serif" :class="context === 'search' ? 'text-base' : 'text-2xl'">
+      {{ titlePrepend + (bill.shortTitle ?? bill.officialTitle) }}
     </div>
-  </RouterLink>
+    <BillCardHeader :header-type="'sub'" :bill="bill" class="text-xs" />
+  </div>
+</RouterLink>
 </template>

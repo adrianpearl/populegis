@@ -1,6 +1,41 @@
 import { type ProvisionRecord } from '@populegis/shared';
 import allProvisionTypes from './provisionTypes.json';
 
+export type BillAction = {
+  text: string;
+  type: string;
+  actionCode?: string;
+  actionDate: string;
+  actionTime?: string;
+  sourceSystem?: { code?: string; name: string };
+  committees?: { name: string; systemCode: string }[];
+  recordedVotes?: {
+    recordedVote: {
+      url: string;
+      date: string;
+      chamber: string;
+      congress: string;
+      rollNumber: string;
+      sessionNumber: string;
+    };
+  };
+};
+
+export type CongressBillStatus = {
+  type?: string;
+  title?: string;
+  number?: string;
+  congress?: string;
+  originChamber?: string;
+  introducedDate?: string;
+  updateDate?: string;
+  actions?: BillAction[];
+  latestAction?: { text: string; actionDate: string };
+  policyArea?: { name: string };
+  sponsors?: { fullName: string; party?: string; state?: string; bioguideId?: string }[];
+  committees?: { name: string; systemCode: string; chamber?: string }[];
+};
+
 export const billTypeGroups: Record<string, string[]> = {
   'Bills (H.R. or S.)': ['HR', 'S'],
   'Resolutions (H.Res. or S.Res.)': ['HRES', 'SRES'],

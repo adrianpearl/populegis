@@ -10,6 +10,7 @@ import { useLastVoteStore, Vote } from '@/stores/lastVote';
 import { toast } from 'vue-sonner';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { governanceDocuments, provisions as provisionsTable } from '@populegis/db';
+import { useHead } from '@unhead/vue';
 
 type Doc = InferSelectModel<typeof governanceDocuments>;
 type ProvisionRow = InferSelectModel<typeof provisionsTable>;
@@ -50,41 +51,46 @@ function onVote(vote: Vote) {
     closeButton: true,
   });
 }
+
+const pageDescription = 'A gift to Their Excellencies the Citizens of the United States of America on the occasion of their Semiquincentennial'
+
+useHead({
+  title: 'Governance',
+  titleTemplate: '%s - Popular Legislation',
+  meta: [
+    { name: 'description', content: pageDescription },
+    { property: 'og:title', content: computed(() => `Governance - Popular Legislation`) },
+    { property: 'og:description', content: pageDescription },
+    { property: 'og:type', content: 'profile' },
+  ],
+});
 </script>
 
 <template>
-  <Document 
-    :mobile-page-title="data?.document.documentId ?? 'Governance'"
-    :provisions="data?.provisions ?? []" 
-    :provision-count="data?.provisionCount ?? 0" 
-    :location="location" 
-    :loading="isLoading" 
-    :current-vote="currentVote"
-    :nav-items="governanceNavItems"
-    @load-more="limit += 100" 
-    @load-previous="backset += 50" 
-    @vote="onVote"
-  >
-    <template #pagetitle>
-      <div class="max-w-full flex justify-between gap-1">
-        <div class="flex gap-2 items-baseline min-w-0 shrink">
-          <span class="font-semibold text-base whitespace-nowrap">{{ data?.document.documentId }}</span>
-          <span v-if="data?.document.title" class="text-base">|</span>
-          <span v-if="data?.document.title" class="font-normal text-base font-serif whitespace-nowrap text-ellipsis overflow-hidden">
-            {{ data?.document.title }}
-          </span>
-        </div>
+<Document :mobile-page-title="data?.document.documentId ?? 'Governance'" :provisions="data?.provisions ?? []"
+  :provision-count="data?.provisionCount ?? 0" :location="location" :loading="isLoading" :current-vote="currentVote"
+  :nav-items="governanceNavItems" @load-more="limit += 100" @load-previous="backset += 50" @vote="onVote">
+  <template #pagetitle>
+    <div class="max-w-full flex justify-between gap-1">
+      <div class="flex gap-2 items-baseline min-w-0 shrink">
+        <span class="font-semibold text-base whitespace-nowrap">{{ data?.document.documentId }}</span>
+        <span v-if="data?.document.title" class="text-base">|</span>
+        <span v-if="data?.document.title"
+          class="font-normal text-base font-serif whitespace-nowrap text-ellipsis overflow-hidden">
+          {{ data?.document.title }}
+        </span>
       </div>
-    </template>
+    </div>
+  </template>
 
-    <template #header>
-      <div v-if="data" class="px-6 pt-20 font-serif text-3xl lg:text-5xl">{{ data.document.title }}</div>
-    </template>
+  <template #header>
+    <div v-if="data" class="px-6 pt-20 font-serif text-3xl lg:text-5xl">{{ data.document.title }}</div>
+  </template>
 
-    <!-- This single context slot handles mapping names to correct widgets cleanly -->
-    <template #navigationContent="{ activeItem, isMobile }">
-      <Toc v-if="activeItem === 'Table of Contents'" :packageid="props.documentId" />
-      <SearchBill v-else-if="activeItem === 'Search Bill'" :packageid="props.documentId" :mobile="isMobile" />
-    </template>
-  </Document>
+  <!-- This single context slot handles mapping names to correct widgets cleanly -->
+  <template #navigationContent="{ activeItem, isMobile }">
+    <Toc v-if="activeItem === 'Table of Contents'" :packageid="props.documentId" />
+    <SearchBill v-else-if="activeItem === 'Search Bill'" :packageid="props.documentId" :mobile="isMobile" />
+  </template>
+</Document>
 </template>

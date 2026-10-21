@@ -15,6 +15,7 @@ import { useHead } from '@unhead/vue';
 import { useApi } from '@/composables/useApi';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { bills, provisions as provisionsTable } from '@populegis/db';
+import type { CongressBillStatus } from '@/utils/index.ts';
 
 const props = defineProps({
   packageid: { type: String, required: false },
@@ -25,41 +26,6 @@ const props = defineProps({
 type BillRow = InferSelectModel<typeof bills> & { status: CongressBillStatus, provisionCount: number };
 type ProvisionRow = InferSelectModel<typeof provisionsTable>;
 type BillPayload = { bill: BillRow; provisions: ProvisionRow[] };
-
-type BillAction = {
-  text: string;
-  type: string;
-  actionCode?: string;
-  actionDate: string;
-  actionTime?: string;
-  sourceSystem?: { code?: string; name: string };
-  committees?: { name: string; systemCode: string }[];
-  recordedVotes?: {
-    recordedVote: {
-      url: string;
-      date: string;
-      chamber: string;
-      congress: string;
-      rollNumber: string;
-      sessionNumber: string;
-    };
-  };
-};
-
-type CongressBillStatus = {
-  type?: string;
-  title?: string;
-  number?: string;
-  congress?: string;
-  originChamber?: string;
-  introducedDate?: string;
-  updateDate?: string;
-  actions?: BillAction[];
-  latestAction?: { text: string; actionDate: string };
-  policyArea?: { name: string };
-  sponsors?: { fullName: string; party?: string; state?: string; bioguideId?: string }[];
-  committees?: { name: string; systemCode: string; chamber?: string }[];
-};
 
 function asBillStatus(status: unknown): CongressBillStatus {
   return (status ?? {}) as CongressBillStatus;

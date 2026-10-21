@@ -76,7 +76,7 @@ const name = computed(() => [data.value.user?.firstname, data.value.user?.lastna
 const location = computed(() =>
   data.value.user?.state && data.value.user?.district ? `${data.value.user.state}-${data.value.user.district}` : '',
 );
-const pageTitle = computed(() => name.value ? `${name.value}'s Voting Record` : 'Profile');
+const pageTitle = computed(() => name.value ?? 'Profile');
 const pageDescription = computed(() =>
   name.value
     ? `View ${name.value}'s votes on federal legislation and provisions. Public record of civic participation.`

@@ -176,8 +176,8 @@ function clearAll() {
       </div>
 
       <MultiSearchSelect v-else-if="currentFilter === 'Committees'" v-model="search.committeeSystemCode"
-        :options="committees.map(d => ({ label: d.name, value: d.system_code }))" placeholder="Search committees"
-        :mobile="mobile" />
+        :options="committees.map(d => ({ label: d.name, value: d.system_code, section: d.chamber }))"
+        placeholder="Search committees" :mobile="mobile" />
 
       <div v-if="mobile" class="flex justify-end">
         <Button variant="outline" class="shadow-none bg-transparent" @click="currentFilter = undefined">Done</Button>

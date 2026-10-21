@@ -17,9 +17,7 @@
               </button>
             </span>
           </template>
-          <span v-else class="truncate text-sm">
-            {{ selected.length }} selected
-          </span>
+          <span v-else class="truncate text-sm">{{ selected.length }} selected</span>
         </template>
         <span v-else class="text-muted-foreground">{{ placeholder }}</span>
       </div>
@@ -34,6 +32,7 @@
       <CommandInput v-model="searchQuery" :placeholder="placeholder" class="border-none focus:ring-0" />
       <CommandEmpty>No results found.</CommandEmpty>
       <CommandList class="max-h-60 overflow-y-auto">
+        <!-- Selected first -->
         <CommandGroup v-if="selectedInView.length">
           <CommandItem v-for="option in selectedInView" :key="`selected-${option.value}`" :value="option.value"
             @select="toggle(option.value)">
@@ -42,15 +41,21 @@
           </CommandItem>
         </CommandGroup>
 
-        <CommandSeparator v-if="selectedInView.length && unselectedInView.length" />
+        <CommandSeparator v-if="selectedInView.length && hasUnselected" />
 
-        <CommandGroup v-if="unselectedInView.length">
-          <CommandItem v-for="option in unselectedInView" :key="option.value" :value="option.value"
-            @select="toggle(option.value)">
-            <Check class="mr-2 h-4 w-4 shrink-0 opacity-0" />
-            <span class="block wrap-break-word overflow-wrap-anywhere min-w-0 flex-1">{{ option.label }}</span>
-          </CommandItem>
-        </CommandGroup>
+        <!-- Unselected, grouped by section -->
+        <template v-for="group in unselectedGroups" :key="group.section ?? 'none'">
+          <CommandGroup v-if="group.options.length">
+            <div v-if="group.section" class="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+              {{ group.section }}
+            </div>
+            <CommandItem v-for="option in group.options" :key="option.value" :value="option.value"
+              @select="toggle(option.value)">
+              <Check class="mr-2 h-4 w-4 shrink-0 opacity-0" />
+              <span class="block wrap-break-word overflow-wrap-anywhere min-w-0 flex-1">{{ option.label }}</span>
+            </CommandItem>
+          </CommandGroup>
+        </template>
       </CommandList>
 
       <div v-if="remainingCount > 0" class="border-t px-3 py-2 text-xs text-muted-foreground">
@@ -75,7 +80,11 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
-export type SelectOption = { label: string; value: string }
+export type SelectOption = {
+  label: string
+  value: string
+  section?: string
+}
 
 const props = defineProps<{
   options: SelectOption[]
@@ -87,7 +96,6 @@ const model = defineModel<string[] | undefined>({ required: true })
 
 const open = ref(false)
 const searchQuery = ref('')
-
 const LIMIT = 20
 
 const selected = computed({
@@ -110,26 +118,42 @@ function labelFor(value: string) {
 const filteredOptions = computed(() => {
   if (!searchQuery.value) return props.options
   const q = searchQuery.value.toLowerCase()
-  return props.options.filter((option) =>
-    option.label.toLowerCase().includes(q) || option.value.toLowerCase().includes(q)
+  return props.options.filter(
+    (o) => o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q),
   )
 })
 
-const selectedInView = computed(() => {
-  const set = new Set(selected.value)
-  return filteredOptions.value.filter((option) => set.has(option.value)).slice(0, LIMIT)
+const selectedSet = computed(() => new Set(selected.value))
+
+const selectedInView = computed(() =>
+  filteredOptions.value.filter((o) => selectedSet.value.has(o.value)).slice(0, LIMIT),
+)
+
+const unselectedGroups = computed(() => {
+  const unselected = filteredOptions.value.filter((o) => !selectedSet.value.has(o.value))
+  const order: (string | undefined)[] = []
+  const map = new Map<string | undefined, SelectOption[]>()
+
+  for (const o of unselected) {
+    if (!map.has(o.section)) {
+      map.set(o.section, [])
+      order.push(o.section)
+    }
+    const list = map.get(o.section)!
+    if (selectedInView.value.length + list.length < LIMIT) list.push(o)
+  }
+
+  return order.map((section) => ({ section, options: map.get(section) ?? [] }))
 })
 
-const unselectedInView = computed(() => {
-  const set = new Set(selected.value)
-  const remainingSlots = Math.max(0, LIMIT - selectedInView.value.length)
-  return filteredOptions.value
-    .filter((option) => !set.has(option.value))
-    .slice(0, remainingSlots)
-})
+const hasUnselected = computed(() =>
+  unselectedGroups.value.some((g) => g.options.length > 0),
+)
 
 const remainingCount = computed(() => {
-  const shown = selectedInView.value.length + unselectedInView.value.length
+  const shown =
+    selectedInView.value.length +
+    unselectedGroups.value.reduce((n, g) => n + g.options.length, 0)
   return Math.max(0, filteredOptions.value.length - shown)
 })
 
