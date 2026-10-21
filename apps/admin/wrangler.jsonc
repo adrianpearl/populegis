@@ -16,8 +16,8 @@
 	"upload_source_maps": true,
 	"hyperdrive": [
 		{
-			"binding": "DB_WRITE",
-			"id": "da1f9f3c95e54500999220d9a2deec18"
+			"binding": "LEGIS_ADMIN",
+			"id": "3aad41397d344e26851abe1354c4f96d"
 		}
 	],
 	/**

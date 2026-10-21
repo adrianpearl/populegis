@@ -5,7 +5,7 @@ import { and, eq, ne } from 'drizzle-orm';
 import { bills, provisions } from '@populegis/db';
 import { createDb } from '../db';
 
-export const billsadd = new Hono<{ Bindings: { DB_WRITE: Hyperdrive } }>();
+export const billsadd = new Hono<{ Bindings: { LEGIS_ADMIN: Hyperdrive } }>();
 
 // version rank only used for title slug eviction
 // eg suppose populegis.org/bill/one-big-beautiful-bill-act goes to version "eh"
@@ -80,7 +80,7 @@ billsadd.put('/bills/:packageid', async (c) => {
     documentKind: kind,
   }));
 
-  const { queryClient, db } = createDb(c.env.DB_WRITE);
+  const { queryClient, db } = createDb(c.env.LEGIS_ADMIN);
   try {
     await db.transaction(async (tx) => {
       await tx.delete(provisions).where(eq(provisions.packageid, packageid));
