@@ -7,19 +7,17 @@ import Loader from '@/components/Loader.vue';
 import BillCard from '@/components/BillCard.vue';
 import { FolderOpen, Search, X } from '@lucide/vue';
 import { useApi } from '@/composables/useApi';
-import type { InferSelectModel } from 'drizzle-orm';
-import type { bills } from '@/db/schema';
+import type { CardBill } from '@/components/BillCard.vue';
 
 defineProps({ mobile: Boolean });
 const open = defineModel<boolean>('open', { default: false });
 
-type Bill = InferSelectModel<typeof bills>;
 const searchQuery = ref('');
 const showSearchResults = ref(false);
 const searchResultFocus = ref(false);
 const searchContainerRef = ref<HTMLElement | null>(null);
 const floating = ref<HTMLElement | null>(null);
-const { data: billsResult, isLoading, run } = useApi<Bill[]>([]);
+const { data: billsResult, isLoading, run } = useApi<CardBill[]>([]);
 
 watchDebounced(searchQuery, (query) => {
   const trimmed = query.trim();

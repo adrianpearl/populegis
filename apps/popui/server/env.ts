@@ -5,8 +5,3 @@ export type PublicEnv = {
   HYPERDRIVE: Hyperdrive;
   SITE: Fetcher;
 };
-
-export type AdminEnv = PublicEnv & {
-  DB_WRITE: Hyperdrive;
-  GOVINFO_API_KEY: string;
-};

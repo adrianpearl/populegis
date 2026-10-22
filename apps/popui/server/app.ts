@@ -46,7 +46,7 @@ export async function handleRequest(request: Request, env: PublicEnv, ctx: Execu
       const assetResponse = await env.SITE.fetch(request);
       return new HTMLRewriter()
         .on('head', {
-          element(el) {
+          element(el: Element) {
             el.append(`<meta property="og:title" content="${escapeAttr(title)}" />`, { html: true });
             el.append(`<meta property="og:description" content="${escapeAttr(description)}" />`, { html: true });
             el.append(`<meta property="og:type" content="article" />`, { html: true });

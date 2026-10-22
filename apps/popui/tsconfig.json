@@ -1,20 +1,14 @@
 {
-	"files": [],
-	"references": [
-		{
-			"path": "./tsconfig.node.json"
-		},
-		{
-			"path": "./tsconfig.app.json"
-		},
-		{
-			"path": "./tsconfig.worker.json"
-		}
-	],
+	"extends": "./tsconfig.node.json",
 	"compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-	"exclude": ["server"]
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
+		"types": [
+			"@cloudflare/workers-types",
+			"./worker-configuration.d.ts",
+			"vite/client"
+		]
+	},
+	"include": [
+		"server"
+	]
 }
