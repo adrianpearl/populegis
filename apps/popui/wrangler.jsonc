@@ -28,7 +28,9 @@
 			"/api/*",
 			"/bill/*",
 			"/governance",
-			"/governance/*"
+			"/governance/*",
+			"/privacy",
+			"/profile/*"
 		]
 	}
 	/**
