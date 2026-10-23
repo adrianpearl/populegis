@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { sms } from './routes/sms';
 
-const app = new Hono().basePath('/api');
-app.route('/sms', sms);
+const app = new Hono();
+app.route('/', sms);
 export default app;
