@@ -28,6 +28,9 @@ const emptyFilters = (): BillSearch => ({
   appropriationsOnly: false,
   policyArea: '',
   legislativeSubjects: [],
+  memberNames: undefined,
+  searchSponsors: true,
+  searchCosponsors: false,
 });
 
 const route = useRoute();

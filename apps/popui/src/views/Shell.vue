@@ -16,7 +16,7 @@ import {
 
 const showSource = false; //import.meta.env.VITE_DB_URI.includes('localhost');
 const console_url = import.meta.env.VITE_CONSOLE_URL;
-const git_url = import.meta.env.VITE_GIT_URL;
+const git_url = 'https://github.com/adrianpearl/populegis';
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
@@ -63,7 +63,7 @@ const navItems = computed(() => [
     props: { href: console_url, target: '_blank' },
     tooltip: 'API',
     icon: Database,
-    show: true
+    show: false
   },
   {
     props: { href: git_url, target: '_blank' },

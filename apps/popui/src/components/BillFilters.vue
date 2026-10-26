@@ -53,7 +53,11 @@ const filters = [
   { name: 'Number', value: () => search.value.number, clear: () => ({ number: undefined }) },
   { name: 'Title', value: () => search.value.title, clear: () => ({ title: undefined }) },
   { name: 'Version', value: () => selectedVersionGroups.value, clear: () => ({ versions: [] }) },
-  { name: 'Sponsor', value: () => search.value.sponsorName, clear: () => ({ sponsorName: undefined }) },
+  {
+    name: 'Members',
+    value: () => search.value.memberNames,
+    clear: () => ({ memberNames: undefined }),
+  },
   { name: 'Appropriations', value: () => search.value.appropriationsOnly, clear: () => ({ appropriationsOnly: false }) },
   { name: 'Policy Area', value: () => search.value.policyArea, clear: () => ({ policyArea: undefined }) },
   { name: 'Legislative Subjects', value: () => search.value.legislativeSubjects, clear: () => ({ legislativeSubjects: [] }) },
@@ -97,6 +101,9 @@ function clearAll() {
     policyArea: undefined,
     legislativeSubjects: undefined,
     committeeSystemCode: undefined,
+    memberNames: undefined,
+    searchSponsors: true,
+    searchCosponsors: false,
   }
   currentFilter.value = undefined
 }
@@ -147,10 +154,19 @@ function clearAll() {
       <ChoiceButtons v-else-if="currentFilter === 'Version'" :options="Object.keys(versionGroups)"
         v-model="selectedVersionGroups" multiple />
 
-      <div v-else-if="currentFilter === 'Sponsor'" :class="mobile ? '' : 'pb-10'">
-        <SearchSelect :model-value="search.sponsorName ?? ''"
-          @update:model-value="set('sponsorName', $event || undefined)" :options="members"
-          placeholder="Enter a member of congress" :mobile="mobile" />
+      <div v-else-if="currentFilter === 'Members'" class="flex flex-col gap-3" :class="mobile ? '' : 'pb-10'">
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" :checked="search.searchSponsors !== false" v-model="search.searchSponsors" />
+            Sponsor
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" :checked="!!search.searchCosponsors" v-model="search.searchCosponsors" />
+            Cosponsor
+          </label>
+        </div>
+        <MultiSearchSelect v-model="search.memberNames" :options="members.map(m => ({ label: m, value: m }))"
+          placeholder="Select members of Congress" :mobile="mobile" />
       </div>
 
       <label v-else-if="currentFilter === 'Appropriations'"

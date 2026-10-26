@@ -14,6 +14,9 @@ export type BillSearch = {
   includeOfficialTitle: boolean;
   versions: string[];
   sponsorName?: string;
+  memberNames?: string[];
+  searchSponsors: boolean;    // default true
+  searchCosponsors: boolean;  // default false
   appropriationsOnly: boolean;
   policyArea?: string;
   legislativeSubjects?: string[];
@@ -26,6 +29,8 @@ export const emptyBillSearch = (): BillSearch => ({
   versions: [],
   includeOfficialTitle: true,
   appropriationsOnly: false,
+  searchSponsors: true,
+  searchCosponsors: false
 });
 
 export type BillListItem = {
@@ -38,7 +43,7 @@ export type BillListItem = {
   lastModified: string;
   shortTitle: string | null;
   officialTitle: string;
-  sponsor: { fullName?: string | null; [key: string]: unknown } | null;
+  sponsor: { fullName?: string | null;[key: string]: unknown } | null;
   dateIssued: string;
   provisionCount: number;
 };

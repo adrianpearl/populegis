@@ -36,6 +36,9 @@ const emptyFilters = (): BillSearch => ({
   appropriationsOnly: false,
   policyArea: '',
   legislativeSubjects: [],
+  memberNames: undefined,
+  searchSponsors: true,
+  searchCosponsors: false,
   // add any new fields BillFilters now writes (committeeSystemCodes, etc.)
 });
 

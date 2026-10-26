@@ -34,15 +34,15 @@ export const tags = pgTable("tags", {
 	deletedAt: timestamp("deleted_at", { mode: 'string' }),
 }, (table) => [
 	foreignKey({
-			columns: [table.packageid],
-			foreignColumns: [bills.packageid],
-			name: "tags_packageid_fkey"
-		}),
+		columns: [table.packageid],
+		foreignColumns: [bills.packageid],
+		name: "tags_packageid_fkey"
+	}),
 	foreignKey({
-			columns: [table.userUsername],
-			foreignColumns: [users.username],
-			name: "tags_user_username_fkey"
-		}).onUpdate("restrict").onDelete("restrict"),
+		columns: [table.userUsername],
+		foreignColumns: [users.username],
+		name: "tags_user_username_fkey"
+	}).onUpdate("restrict").onDelete("restrict"),
 ]);
 
 export const comments = pgTable("comments", {
@@ -59,15 +59,15 @@ export const comments = pgTable("comments", {
 	userId: integer("user_id").notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.packageid],
-			foreignColumns: [bills.packageid],
-			name: "comments_packageid_fkey"
-		}),
+		columns: [table.packageid],
+		foreignColumns: [bills.packageid],
+		name: "comments_packageid_fkey"
+	}),
 	foreignKey({
-			columns: [table.replyToComment],
-			foreignColumns: [table.commentId],
-			name: "comments_reply_to_comment_fkey"
-		}),
+		columns: [table.replyToComment],
+		foreignColumns: [table.commentId],
+		name: "comments_reply_to_comment_fkey"
+	}),
 	check("user_day_comment_range", sql`(user_day_comment >= 0) AND (user_day_comment <= 4)`),
 ]);
 
@@ -93,6 +93,8 @@ export const bills = pgTable("bills", {
 	numCosponsors: integer("num_cosponsors").default(0),
 	lastVote: date("last_vote"),
 	committeeSystemCodes: text("committee_system_codes").array().generatedAlwaysAs(sql`extract_committee_codes(status)`),
+	sponsorName: text("sponsor_name").generatedAlwaysAs(sql`sponsor->>'fullName'`),
+	cosponsorNames: text("cosponsor_names").array().generatedAlwaysAs(sql`extract_cosponsor_names(status)`),
 }, (table) => [
 	unique("bills_slug_key").on(table.slug),
 ]);
@@ -110,20 +112,20 @@ export const votes = pgTable("votes", {
 	documentId: text("document_id").notNull(),
 }, (table) => [
 	foreignKey({
-			columns: [table.location, table.packageid],
-			foreignColumns: [provisions.packageid, provisions.location],
-			name: "fk_vote_provision"
-		}).onUpdate("restrict"),
+		columns: [table.location, table.packageid],
+		foreignColumns: [provisions.packageid, provisions.location],
+		name: "fk_vote_provision"
+	}).onUpdate("restrict"),
 	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [users.id],
-			name: "fk_vote_user"
-		}).onUpdate("restrict"),
+		columns: [table.userId],
+		foreignColumns: [users.id],
+		name: "fk_vote_user"
+	}).onUpdate("restrict"),
 	foreignKey({
-			columns: [table.location, table.documentId],
-			foreignColumns: [provisions.location, provisions.documentId],
-			name: "votes_provision_document_fk"
-		}),
+		columns: [table.location, table.documentId],
+		foreignColumns: [provisions.location, provisions.documentId],
+		name: "votes_provision_document_fk"
+	}),
 	unique("votes_unique_provision_user").on(table.userId, table.location, table.packageid),
 ]);
 
@@ -162,12 +164,13 @@ export const provisions = pgTable("provisions", {
 	documentId: text("document_id").notNull(),
 	documentKind: text("document_kind").notNull(),
 }, (table) => [
-	primaryKey({ columns: [table.packageid, table.location], name: "provisions_pkey"}),
+	primaryKey({ columns: [table.packageid, table.location], name: "provisions_pkey" }),
 	unique("provisions_packageid_provision_tag_key").on(table.packageid, table.provisionTag),
 	unique("provisions_document_loc_key").on(table.location, table.documentId),
 	check("provisions_document_kind_chk", sql`document_kind = ANY (ARRAY['bill'::text, 'meta'::text])`),
 ]);
-export const smsSessionsRedacted = pgView("sms_sessions_redacted", {	sessionType: varchar("session_type"),
+export const smsSessionsRedacted = pgView("sms_sessions_redacted", {
+	sessionType: varchar("session_type"),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }),
 	expiresAt: timestamp("expires_at", { withTimezone: true, mode: 'string' }),
 }).as(sql`SELECT sms_sessions.session_type, sms_sessions.created_at, sms_sessions.expires_at FROM sms_sessions`);

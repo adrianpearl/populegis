@@ -40,7 +40,22 @@ function buildBillFilters(filters: Partial<BillSearch>): SQL[] {
       : or(ilike(bills.shortTitle, pattern), ilike(bills.officialTitle, pattern))!);
   }
   if (filters.versions?.length) where.push(inArray(bills.version, filters.versions));
-  if (filters.sponsorName) where.push(sql`${bills.sponsor}::text ilike ${like(filters.sponsorName)}`);
+  if (filters.memberNames?.length) {
+    const clauses: SQL[] = [];
+
+    if (filters.searchSponsors !== false) {
+      clauses.push(inArray(bills.sponsorName, filters.memberNames));
+    }
+
+    if (filters.searchCosponsors) {
+      clauses.push(sql`${bills.cosponsorNames} && ARRAY[${sql.join(
+        filters.memberNames.map((name) => sql`${name}`),
+        sql`, `,
+      )}]::text[]`);
+    }
+
+    if (clauses.length) where.push(or(...clauses)!);
+  }
   if (filters.appropriationsOnly) {
     where.push(sql`exists (
       select 1 from provisions p

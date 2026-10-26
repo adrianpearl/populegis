@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "popui-sms",
+	"name": "populegis-sms",
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
