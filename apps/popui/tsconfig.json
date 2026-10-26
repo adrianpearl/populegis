@@ -1,30 +1,8 @@
 {
-	"extends": "./tsconfig.node.json",
-	"compilerOptions": {
-		"target": "ESNext",
-		"lib": [
-			"DOM",
-			"DOM.Iterable",
-			"ESNext"
-		],
-		"jsx": "preserve",
-		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
-		"types": [
-			"@cloudflare/workers-types",
-			"./worker-configuration.d.ts",
-			"vite/client"
-		],
-		"paths": {
-			"@/*": [
-				"./src/*"
-			]
-		},
-	},
-	"include": [
-		"server",
-		"src/**/*.ts",
-		"src/**/*.d.ts",
-		"src/**/*.tsx",
-		"src/**/*.vue"
-	]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.worker.json" }
+  ]
 }
