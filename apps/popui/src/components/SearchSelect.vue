@@ -3,7 +3,7 @@
   <div class="relative">
     <ComboboxAnchor as-child>
       <ComboboxTrigger
-        class="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background dark:bg-muted/20 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        class="flex h-9 w-full items-center justify-between rounded-sm border border-input bg-background dark:bg-muted/20 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         :class="mobile ? '' : ''" role="combobox" :aria-expanded="open" :aria-label="placeholder">
         <span v-if="selectedOption" class="block truncate">
           {{ selectedOption }}

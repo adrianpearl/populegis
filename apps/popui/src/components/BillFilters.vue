@@ -15,6 +15,7 @@ import type { BillSearch } from '@populegis/shared';
 import { congresses, billTypeGroups, versionGroups } from '@/utils/index.ts';
 import committees from '@/utils/committees.json';
 import ChoiceButtons from './ChoiceButtons.vue';
+import { Checkbox } from '@/components/ui/checkbox';
 
 defineProps({ mobile: Boolean });
 
@@ -157,14 +158,20 @@ function clearAll() {
       <div v-else-if="currentFilter === 'Members'" class="flex flex-col gap-3" :class="mobile ? '' : 'pb-10'">
         <div class="flex gap-4">
           <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" :checked="search.searchSponsors !== false" v-model="search.searchSponsors" />
+            <Checkbox :checked="search.searchSponsors !== false" v-model="search.searchSponsors" />
             Sponsor
           </label>
           <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" :checked="!!search.searchCosponsors" v-model="search.searchCosponsors" />
+            <Checkbox :checked="!!search.searchCosponsors" v-model="search.searchCosponsors" />
             Cosponsor
           </label>
         </div>
+        <!-- <ChoiceButtons :options="['Sponsor', 'Cosponsor']" @update:model-value="(v) => {
+          console.log(v);
+          set('searchSponsors', v!.includes('Sponsor') || !v?.length);
+          set('searchCosponsors', v!.includes('Cosponsor'));
+          console.log(search.searchSponsors, search.searchCosponsors);
+        }" multiple /> -->
         <MultiSearchSelect v-model="search.memberNames" :options="members.map(m => ({ label: m, value: m }))"
           placeholder="Select members of Congress" :mobile="mobile" />
       </div>

@@ -183,7 +183,7 @@ const navItems = computed(() => [
   </div>
   <div class="col-span-4 flex flex-col sticky top-0 h-dvh max-h-dvh justify-between">
     <div class="flex flex-col sticky top-0 grow overflow-y-auto">
-      <div class="flex gap-2 sticky top-0 h-16 min-h-16 items-center z-20 pr-6 bg-background">
+      <div class="flex gap-2 sticky top-0 h-16 min-h-16 items-center z-20 pr-6 bg-background pl-1">
         <BillSearch />
       </div>
       <div class="overflow-y-auto">

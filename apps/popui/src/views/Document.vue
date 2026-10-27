@@ -151,7 +151,7 @@ const NAY = Vote.NAY;
           </Button>
         </div>
       </div>
-      <div class="grow">
+      <div class="grow mt-1 ml-1">
         <slot name="navigationContent" :active-item="currentItem" :is-mobile="false" />
       </div>
     </div>

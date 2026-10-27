@@ -2,7 +2,7 @@
 <Popover v-model:open="open">
   <PopoverTrigger as-child>
     <button type="button"
-      class="flex min-h-9 w-full items-center justify-between gap-1 rounded-md border border-input bg-background dark:bg-muted/20 px-3 py-1.5 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      class="flex min-h-9 w-full items-center justify-between gap-1 rounded-sm border border-input bg-background dark:bg-muted/20 px-3 py-1.5 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       :aria-expanded="open" :aria-label="placeholder">
       <div class="flex flex-1 flex-wrap items-center gap-1 min-w-0">
         <template v-if="selected.length">
