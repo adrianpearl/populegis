@@ -141,6 +141,11 @@ useHead({
     <div v-if="hasMore" class="w-full flex items-center" @click="loadMore">
       <Button variant="secondary" class="my-4 w-5/6 mx-auto">Load More</Button>
     </div>
+    <div class="px-4 pb-4 text-xs md:hidden"><router-link to="/terms"
+        class="text-xs text-muted-foreground hover:underline cursor-pointer text-nowrap">Terms</router-link> ·
+      <router-link to="/privacy"
+        class="text-xs text-muted-foreground hover:underline cursor-pointer text-nowrap">Privacy</router-link>
+    </div>
   </template>
   <template #sidebar>
     <div class="flex flex-col divide-y-2 dark:divide-gray-500">

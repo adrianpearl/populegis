@@ -3,16 +3,11 @@ import { RouterLink } from 'vue-router'
 import { computed, ref, toRefs } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useDark, useToggle } from '@vueuse/core';
-import { Home, FileCode2, Database, Sun, Moon, FolderGit2, ExternalLink, Menu, Landmark, FolderLock } from '@lucide/vue';
+import { Home, FileCode2, Database, Sun, Moon, FolderGit2, ExternalLink, Menu, X, Landmark, FolderLock } from '@lucide/vue';
 import Tooltip from '@/components/Tooltip.vue';
 import BillSearch from '@/components/BillSearch.vue';
 import NavItem from '@/components/NavItem.vue';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 
 const showSource = false; //import.meta.env.VITE_DB_URI.includes('localhost');
 const console_url = import.meta.env.VITE_CONSOLE_URL;
@@ -31,7 +26,6 @@ const props = defineProps({
 });
 const { showMobileMainOverlay, pageLoading } = toRefs(props);
 const mobileSearch = ref(false);
-
 const showMenu = ref(false);
 
 const navItems = computed(() => [
@@ -97,44 +91,40 @@ const navItems = computed(() => [
         </div>
       </div>
       <div class="flex gap-2 flex-row">
-        <BillSearch mobile v-model:open="mobileSearch" />
-        <DropdownMenu @update:open="(payload: boolean) => showMenu = payload">
-          <DropdownMenuTrigger as-child>
-            <Button size="icon-lg" variant="ghost">
-              <Menu />
+        <BillSearch mobile v-model:open="mobileSearch" :disabled="showMenu" />
+        <Sheet v-model:open="showMenu">
+          <SheetTrigger as-child>
+            <Button size="icon-lg" variant="ghost" class="relative overflow-hidden">
+              <Transition mode="out-in" enter-active-class="transition duration-150 ease-out"
+                enter-from-class="opacity-0 scale-75 -rotate-45" leave-active-class="transition duration-100 ease-in"
+                leave-to-class="opacity-0 scale-75 rotate-45">
+                <!-- Show close icon when open, menu icon when closed -->
+                <X v-if="showMenu" class="size-6" />
+                <Menu v-else class="size-6" />
+              </Transition>
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent :align="'start'" class="w-dvw border-none rounded-none px-2 py-3">
-            <DropdownMenuItem as-child v-for="item in navItems.filter(d => d.show)" :key="item.tooltip">
-              <NavItem large :to="item.props.to" :href="item.props.href" :icon="item.icon" :label="item.tooltip"
-                :action="item.action" />
-            </DropdownMenuItem>
-            <DropdownMenuItem as-child v-for="item in navItems.filter(d => d.show)" class="hidden">
-              <component :is="item.props.href ? 'a' : 'router-link'" :to="item.props.to ?? ''"
-                :href="item.props.href ?? ''">
-                <Button class="w-full justify-start" variant="ghost" @click="item.action ? item.action() : null">
-                  <component :is="item.icon" class="text-primary" /> {{ item.tooltip }}
-                </Button>
-              </component>
-            </DropdownMenuItem>
-            <div class="text-xs text-muted-foreground mt-8">
-              To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data
-              rates
-              may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <router-link
-                to="/terms" class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of
-                Service</router-link> and
-              <router-link to="/privacy"
-                class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
-                Policy</router-link>.
+          </SheetTrigger>
+          <SheetContent
+            class="top-14 h-[calc(100dvh-3.5rem)] w-full max-w-none border-none rounded-none p-2 overflow-y-auto">
+            <div class="h-full flex flex-col justify-between">
+              <div class="flex flex-col gap-1">
+                <NavItem v-for="item in navItems.filter(d => d.show)" :key="item.tooltip" large :to="item.props.to"
+                  :href="item.props.href" :icon="item.icon" :label="item.tooltip" :action="item.action" />
+              </div>
+              <div class="text-xs text-muted-foreground mt-8">
+                To participate via text, you will soon be able to text SIGNUP to a dedicated number.
+                Message and data rates may apply. Message frequency varies.
+                Text STOP to cancel, HELP for help.
+                View our <router-link to="/terms" class="underline text-foreground">Terms of Service</router-link>
+                and <router-link to="/privacy" class="underline text-foreground">Privacy Policy</router-link>.
+              </div>
             </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   </div>
   <div class="grow relative">
-    <div v-if="showMenu" class="fixed inset-0 z-50 bg-gray-800/20 dark:bg-black/50" @click="() => showMenu = false">
-    </div>
     <div v-if="showMobileMainOverlay" class="fixed top-14 bottom-12 w-full z-30 bg-zinc-50 dark:bg-zinc-900">
       <slot name="mainOverlay"></slot>
     </div>
@@ -196,8 +186,8 @@ const navItems = computed(() => [
       <div class="mr-6 my-4">
         <div class="text-xs text-muted-foreground">
           To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data rates
-          may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <router-link
-            to="/terms" class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of
+          may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <router-link to="/terms"
+            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of
             Service</router-link> and
           <router-link to="/privacy" class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
             Policy</router-link>.

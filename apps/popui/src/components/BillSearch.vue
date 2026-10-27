@@ -9,7 +9,7 @@ import { FolderOpen, Search, X } from '@lucide/vue';
 import { useApi } from '@/composables/useApi';
 import type { CardBill } from '@/components/BillCard.vue';
 
-defineProps({ mobile: Boolean });
+defineProps({ mobile: Boolean, disabled: Boolean });
 const open = defineModel<boolean>('open', { default: false });
 
 const searchQuery = ref('');
@@ -57,7 +57,7 @@ onClickOutside(searchContainerRef, () => {
 
 <template>
   <template v-if="mobile">
-    <Button size="icon-lg" @click="open = !open" variant="ghost">
+    <Button size="icon-lg" @click="open = !open" variant="ghost" :disabled="disabled">
       <Search />
     </Button>
     <div v-if="open" class="fixed inset-x-0 top-14 bottom-0 z-21000 overflow-y-scroll bg-background px-3 pb-8 text-primary">
