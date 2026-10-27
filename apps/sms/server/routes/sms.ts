@@ -73,11 +73,11 @@ sms.post('/', async (c) => {
     if (/^stop$/i.test(command)) {
       await db.delete(smsSessions).where(eq(smsSessions.phone, from));
       return reply(user
-        ? 'You will no longer receive messages. Your account and votes are unchanged.'
-        : 'You will no longer receive messages.');
+        ? 'Popular Legislation: You will no longer receive messages. Your account and votes are unchanged.'
+        : 'Popular Legislation: You will no longer receive messages.');
     }
     if (/^help$/i.test(command)) {
-      return reply('SIGNUP to create an account. VOTE <bill> AYE or NAY. ADD BILL <id>. DELETE ACCOUNT. STOP to opt out.');
+      return reply('Popular Legislation HELP: SIGNUP to create an account. VOTE <bill> AYE or NAY. ADD BILL <id>. DELETE ACCOUNT. STOP to opt out. Support: populegis.org or contact@populegis.org.');
     }
 
     // consent: waiting for YES. Anything else repeats the disclosure.
@@ -86,7 +86,7 @@ sms.post('/', async (c) => {
       await db.update(smsSessions)
         .set({ sessionData: { step: 'account' } })
         .where(eq(smsSessions.phone, from));
-      return reply(`Reply with ${ACCOUNT_FORMAT}. Example: ${['ada', 'Ada Lovelace', 'NY', '12', 'ATTEST', 'AYE'].join('\n')}`);
+      return reply(`Popular Legislation: You are opted in. Reply with ACCOUNT, username, full name, state, district, attestation text, vote (AYE or NAY). See populegis.org/governance/47 for assistance. Msg frequency varies. Msg & data rates may apply. Reply HELP for help, STOP to cancel.`);
     }
 
     // account: one line creates the user and the governance vote, or stays here.
