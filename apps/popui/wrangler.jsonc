@@ -30,6 +30,7 @@
 			"/governance",
 			"/governance/*",
 			"/privacy",
+			"/terms",
 			"/profile/*"
 		]
 	}

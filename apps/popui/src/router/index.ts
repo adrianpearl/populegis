@@ -6,6 +6,7 @@ import VoteList from '../views/VoteList.vue'
 import Governance from '@/views/Governance.vue'
 import { isValidGovInfoPackageId } from '@/utils'
 import Privacy from '@/views/Privacy.vue'
+import Terms from '@/views/Terms.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,11 @@ const router = createRouter({
       path: '/privacy',
       name: 'privacy',
       component: Privacy,
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: Terms,
     },
     {
       path: '/profile/:username',

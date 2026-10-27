@@ -147,7 +147,7 @@ sms.post('/', async (c) => {
       await db.insert(smsSessions).values({
         phone: from, sessionType: 'signup', sessionData: { step: 'consent' },
       });
-      return reply('Welcome to Popular Legislation. Reply YES to create an account and receive automated updates. By replying YES you consent to populegis.org/governance. Msg frequency varies. Msg & data rates may apply. Reply STOP to cancel, HELP for help.');
+      return reply('Welcome to Popular Legislation. Reply YES to create an account and receive automated updates. By replying YES you consent to populegis.org/terms. Msg frequency varies. Msg & data rates may apply. Reply STOP to cancel, HELP for help.');
     }
 
     if (!user) {
