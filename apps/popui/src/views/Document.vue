@@ -92,7 +92,7 @@ const NAY = Vote.NAY;
       </div>
       <ProvisionChip :visible="!titleVisible" />
       <slot name="form" />
-      <Button v-if="minLoaded > 1" variant="secondary" class="w-5/6 mx-auto my-3" @click="emit('loadPrevious')">
+      <Button v-if="minLoaded > 1" variant="secondary" class="w-5/6 block mx-auto my-3" @click="emit('loadPrevious')">
         Load More
       </Button>
       <div class="legis lg:ml-0 px-8 pb-32">
@@ -105,7 +105,8 @@ const NAY = Vote.NAY;
             :currentLocation="location" />
         </div>
       </div>
-      <Button v-if="maxLoaded < maxLocation" variant="secondary" class="w-5/6 mx-auto" @click="emit('loadMore')">
+      <Button v-if="maxLoaded < maxLocation" variant="secondary" class="w-5/6 block mx-auto mb-20"
+        @click="emit('loadMore')">
         Load More
       </Button>
     </div>

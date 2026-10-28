@@ -111,7 +111,7 @@ const navItems = computed(() => [
                 <NavItem v-for="item in navItems.filter(d => d.show)" :key="item.tooltip" large :to="item.props.to"
                   :href="item.props.href" :icon="item.icon" :label="item.tooltip" :action="item.action" />
               </div>
-              <div class="text-xs text-muted-foreground mt-8">
+              <div class="text-xs text-muted-foreground mt-8 p-4">
                 To participate via text, you will soon be able to text SIGNUP to a dedicated number.
                 Message and data rates may apply. Message frequency varies.
                 Text STOP to cancel, HELP for help.
@@ -137,7 +137,7 @@ const navItems = computed(() => [
   </div>
 </div>
 <div class="hidden lg:grid grid-cols-12 gap-1">
-  <div class="xl:col-span-2 pl-6 sticky top-0 h-screen min-h-screen flex flex-col gap-6 pb-4 bg-background z-20">
+  <div class="xl:col-span-2 pl-6 sticky top-0 self-start flex flex-col gap-6 pb-4 bg-background z-20">
     <div class="flex items-center h-16">
       <router-link :to="'/governance'">
         <span
