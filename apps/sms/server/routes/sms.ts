@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import type { Hyperdrive } from '@cloudflare/workers-types';
 import { and, eq } from 'drizzle-orm';
-import { smsSessions, users, votes } from '@populegis/db';
+import { smsSessions, users, votes, bills, provisions } from '@populegis/db';
 import { createDb } from '../db';
 
 type Env = { SMS: Hyperdrive; TWILIO_AUTH_TOKEN: string };
@@ -148,23 +148,63 @@ sms.post('/', async (c) => {
       return reply('Your account and votes have been deleted. Text SIGNUP to create a new one.');
     }
 
-    const vote = body.match(/^vote\s+(\S+)\s+(aye|nay)$/i);
-    if (vote) {
-      const packageid = vote[1].startsWith('BILLS-') || vote[1].startsWith('META-') ? vote[1] : `BILLS-${vote[1]}`;
-      const voteOption = /^aye$/i.test(vote[2]) ? 'up' : 'down';
+    const voteMatch = body.match(/^(?:delete\s+)?vote\s+(\S+)(?:\s+(\d+))?\s+(aye|nay)$/i)
+      ?? body.match(/^delete\s+vote\s+(\S+)(?:\s+(\d+))?$/i);
+
+    if (voteMatch) {
+      const isDelete = /^delete/i.test(body);
+      const rawId = voteMatch[1];
+      const location = voteMatch[2] ? Number(voteMatch[2]) : 0;
+      const packageid = rawId.startsWith('BILLS-') || rawId.startsWith('META-') ? rawId : `BILLS-${rawId}`;
+
+      // existence
+      if (location === 0) {
+        const bill = await db.query.bills.findFirst({ where: eq(bills.packageid, packageid) });
+        if (!bill) return reply(`No bill found for ${packageid}.`);
+      } else {
+        const provision = await db.query.provisions.findFirst({
+          where: and(eq(provisions.packageid, packageid), eq(provisions.location, location)),
+        });
+        if (!provision) return reply(`No provision at location ${location} on ${packageid}.`);
+      }
+
+      if (isDelete) {
+        const existing = await db.query.votes.findFirst({
+          where: and(eq(votes.userId, user.id), eq(votes.packageid, packageid), eq(votes.location, location)),
+        });
+        if (!existing) {
+          return reply(location
+            ? `You have no vote on ${packageid} provision ${location}.`
+            : `You have no vote on ${packageid}.`);
+        }
+        await db.delete(votes).where(eq(votes.id, existing.id));
+        return reply(location
+          ? `Deleted vote on ${packageid} provision ${location}.`
+          : `Deleted vote on ${packageid}.`);
+      }
+
+      const voteOption = /^aye$/i.test(voteMatch[3]) ? 'up' : 'down';
+      const prior = await db.query.votes.findFirst({
+        where: and(eq(votes.userId, user.id), eq(votes.packageid, packageid), eq(votes.location, location)),
+      });
+
       await db.insert(votes).values({
-        userId: user.id, packageid, documentId: packageid, location: 0, voteOption,
+        userId: user.id, packageid, documentId: packageid, location, voteOption,
       }).onConflictDoUpdate({
         target: [votes.userId, votes.location, votes.packageid],
         set: { voteOption, documentId: packageid, updatedAt: new Date().toISOString() },
       });
-      return reply(`Recorded ${vote[2].toUpperCase()} on ${packageid}.`);
+
+      const verb = prior ? 'Updated' : 'Recorded';
+      return reply(location
+        ? `${verb} ${voteMatch[3].toUpperCase()} on ${packageid} provision ${location}.`
+        : `${verb} ${voteMatch[3].toUpperCase()} on ${packageid}.`);
     }
 
     if (/^add\s+bill\s+(\S+)$/i.test(body)) {
       const raw = body.split(/\s+/)[2];
       const packageid = raw.startsWith('BILLS-') ? raw : `BILLS-${raw}`;
-      // ingest not wired yet
+      return reply(`ADD BILL under construction, please check back soon.`);
     }
 
     return reply('Text HELP for commands.');
