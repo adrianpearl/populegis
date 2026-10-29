@@ -54,14 +54,6 @@ sms.post('/', async (c) => {
   const [command, ...rest] = body.split(/\s+/);
   const { queryClient, db } = createDb(c.env.SMS);
 
-  // Enforce robust keyword checking for compliance safety
-  const cleanBody = body.trim().toUpperCase();
-
-  if (cleanBody.startsWith('STOP') || cleanBody.startsWith('QUIT')) {
-    await db.delete(smsSessions).where(eq(smsSessions.phone, from));
-    return reply('You will no longer receive messages. Your account and votes are unchanged.');
-  }
-
   try {
     const session = await db.query.smsSessions.findFirst({
       where: and(eq(smsSessions.phone, from), eq(smsSessions.sessionType, 'signup')),
@@ -69,34 +61,40 @@ sms.post('/', async (c) => {
     const user = await db.query.users.findFirst({ where: eq(users.phone, from) });
     const step = (session?.sessionData as SessionData | null)?.step;
 
-    // STOP wins in every state. Opt-out only: a user row is left in place.
-    if (/^stop$/i.test(command)) {
-      await db.delete(smsSessions).where(eq(smsSessions.phone, from));
-      return reply(user
-        ? 'Popular Legislation: You will no longer receive messages. Your account and votes are unchanged.'
-        : 'Popular Legislation: You will no longer receive messages.');
-    }
-    if (/^help$/i.test(command)) {
-      return reply('Popular Legislation HELP: SIGNUP to create an account. VOTE <bill> AYE or NAY. ADD BILL <id>. DELETE ACCOUNT. STOP to opt out. Support: populegis.org or contact@populegis.org.');
+    // HELP, STOP, and START are answered by Twilio (Messaging Service opt-out responses).
+    // Do not handle them here. SIGNUP always resets any leftover session so a mid-signup
+    // STOP/START does not leave the number stuck in the consent step.
+    // Twilio Advanced Opt-Out answers HELP/STOP/START itself.
+    // Return empty TwiML so we don't send a second reply.
+    if (/^(help|stop|start|unstop|quit)$/i.test(command)) {
+      return new Response(
+        '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+        { headers: { 'content-type': 'text/xml' } },
+      );
     }
 
-    // consent: waiting for YES. Anything else repeats the disclosure.
+    if (/^signup$/i.test(command)) {
+      if (user) return reply('This number already has an account. Text HELP for commands.');
+      await db.delete(smsSessions).where(eq(smsSessions.phone, from));
+      await db.insert(smsSessions).values({
+        phone: from, sessionType: 'signup', sessionData: { step: 'consent' },
+      });
+      return reply('Welcome to Popular Legislation. Reply YES to create an account and receive automated updates. By replying YES you consent to populegis.org/terms. Msg frequency varies. Msg & data rates may apply. Reply STOP to cancel, HELP for help.');
+    }
+
+    // consent: waiting for YES
     if (!user && step === 'consent') {
       if (!/^yes$/i.test(command)) return reply('Reply YES to consent, or STOP to cancel.');
       await db.update(smsSessions)
         .set({ sessionData: { step: 'account' } })
         .where(eq(smsSessions.phone, from));
-      return reply(`Popular Legislation: You are opted in. Reply with ACCOUNT, username, full name, state, district, attestation text, vote (AYE or NAY). See populegis.org/governance/47 for assistance. Msg frequency varies. Msg & data rates may apply. Reply HELP for help, STOP to cancel.`);
+      return reply('Popular Legislation: You are opted in. Reply with ACCOUNT, username, full name, state, district, attestation text, vote (AYE or NAY). See populegis.org/governance/47 for assistance. Msg frequency varies. Msg & data rates may apply. Reply HELP for help, STOP to cancel.');
     }
 
-    // account: one line creates the user and the governance vote, or stays here.
-    // account: handles the newline separated block structure
+    // account: newline-separated block
     if (!user && step === 'account') {
-      // Split on newlines instead of matching a strict inline regex pattern
       const lines = body.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-      console.log(lines[0], lines.length, /^account$/i.test(lines[0]));
 
-      // Validation: Ensure the body starts with ACCOUNT and contains all 7 required lines
       if (lines.length < 7 || !/^account$/i.test(lines[0])) {
         return reply(`Please send your account information in the following format: ${ACCOUNT_FORMAT} Visit populegis.org/governance/48 for a signup assistant tool.`);
       }
@@ -105,19 +103,15 @@ sms.post('/', async (c) => {
       const name = lines[2];
       const state = lines[3];
       const district = lines[4];
-      // lines[5] is the long attestation text string
       const voteWord = lines[6];
 
-      // Validate State (2 letters) & District (digits or "at large")
       if (!/^[A-Za-z]{2}/.test(state) || !/^(\d{1,2}|at large)/i.test(district)) {
         return reply(`Format error in State or District. Please use the layout: ${ACCOUNT_FORMAT}`);
       }
 
-      // Parse names out of the full name line
       const [firstname, ...last] = name.split(/\s+/);
       if (!last.length) return reply('Include a first and last name.');
 
-      // Validate vote input
       if (!/^(aye|nay)/i.test(voteWord)) {
         return reply('Please ensure your vote line at the end specifies either AYE or NAY.');
       }
@@ -133,21 +127,12 @@ sms.post('/', async (c) => {
 
         await tx.insert(votes).values({
           userId: insertedUser.id, packageid: 'META-1', documentId: 'META-1',
-          location: 0, voteOption: /^aye\$/i.test(voteWord) ? 'up' : 'down',
+          location: 0, voteOption: /^aye$/i.test(voteWord) ? 'up' : 'down',
         });
         await tx.delete(smsSessions).where(eq(smsSessions.phone, from));
       });
 
       return reply(`Welcome ${firstname}. Your account (${username}) has been created. Visit populegis.org to start voting on bills.`);
-    }
-
-    // none: SIGNUP opens consent. Any other command needs an account.
-    if (/^signup$/i.test(command)) {
-      if (user) return reply('This number already has an account. Text HELP for commands.');
-      await db.insert(smsSessions).values({
-        phone: from, sessionType: 'signup', sessionData: { step: 'consent' },
-      });
-      return reply('Welcome to Popular Legislation. Reply YES to create an account and receive automated updates. By replying YES you consent to populegis.org/terms. Msg frequency varies. Msg & data rates may apply. Reply STOP to cancel, HELP for help.');
     }
 
     if (!user) {
@@ -179,10 +164,7 @@ sms.post('/', async (c) => {
     if (/^add\s+bill\s+(\S+)$/i.test(body)) {
       const raw = body.split(/\s+/)[2];
       const packageid = raw.startsWith('BILLS-') ? raw : `BILLS-${raw}`;
-      // const result = await ingestBill(c.env, packageid);
-      // return reply(result.existed
-      //   ? `${packageid} is already loaded.`
-      //   : `Added ${packageid} with ${result.provisions} provisions.`);
+      // ingest not wired yet
     }
 
     return reply('Text HELP for commands.');
