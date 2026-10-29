@@ -8,6 +8,7 @@ import Tooltip from '@/components/Tooltip.vue';
 import BillSearch from '@/components/BillSearch.vue';
 import NavItem from '@/components/NavItem.vue';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import { twilio_number } from '@/utils/voteAssist';
 
 const showSource = false; //import.meta.env.VITE_DB_URI.includes('localhost');
 const console_url = import.meta.env.VITE_CONSOLE_URL;
@@ -112,11 +113,11 @@ const navItems = computed(() => [
                   :href="item.props.href" :icon="item.icon" :label="item.tooltip" :action="item.action" />
               </div>
               <div class="text-xs text-muted-foreground mt-8 p-4">
-                To participate via text, you will soon be able to text SIGNUP to a dedicated number.
-                Message and data rates may apply. Message frequency varies.
-                Text STOP to cancel, HELP for help.
-                View our <router-link to="/terms" class="underline text-foreground">Terms of Service</router-link>
-                and <router-link to="/privacy" class="underline text-foreground">Privacy Policy</router-link>.
+                Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{ twilio_number
+                  }}</span> to get started. Message and data rates may apply. Message frequency
+                varies. Text STOP to cancel, HELP for help. View our <router-link to="/terms"
+                  class="underline text-foreground">Terms of Service</router-link> and <router-link to="/privacy"
+                  class="underline text-foreground">Privacy Policy</router-link>.
               </div>
             </div>
           </SheetContent>
@@ -185,12 +186,12 @@ const navItems = computed(() => [
     <div class="sticky bottom-0">
       <div class="mr-6 my-4">
         <div class="text-xs text-muted-foreground">
-          To participate via text, you will soon be able to text SIGNUP to a dedicated number. Message and data rates
-          may apply. Message frequency varies. Text STOP to cancel, HELP for help. View our <router-link to="/terms"
-            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of
-            Service</router-link> and
-          <router-link to="/privacy" class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy
-            Policy</router-link>.
+          Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{ twilio_number }}</span>
+          to get started. Message and data rates may apply. Message frequency varies.
+          Text STOP to cancel, HELP for help. View our <router-link to="/terms"
+            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of Service</router-link>
+          and <router-link to="/privacy"
+            class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Privacy Policy</router-link>.
         </div>
       </div>
     </div>

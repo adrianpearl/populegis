@@ -3,8 +3,8 @@ import { defineStore } from 'pinia'
 
 export const Vote = {
   NULL: 'null',
-  AYE: 'up',
-  NAY: 'down',
+  AYE: 'AYE',
+  NAY: 'NAY',
 } as const;
 
 export type Vote = (typeof Vote)[keyof typeof Vote];

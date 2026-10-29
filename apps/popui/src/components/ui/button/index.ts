@@ -11,7 +11,7 @@ export const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive/60 text-white hover:bg-destructive/50 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
@@ -20,7 +20,7 @@ export const buttonVariants = cva(
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         success:
-          "bg-success text-white shadow-xs hover:bg-success/90 active:bg-success/90 focus-visible:ring-success/20 dark:focus-visible:ring-success/40 dark:bg-success/60",
+          "bg-success/60 text-white shadow-xs hover:bg-success/50 active:bg-success/90 focus-visible:ring-success/20 dark:focus-visible:ring-success/40 dark:bg-success/60",
         ghostSuccess:
           "text-success-foreground hover:bg-success/20 active:bg-success/20 dark:hover:bg-success/50 dark:active:bg-success/50",
         ghostDestructive:

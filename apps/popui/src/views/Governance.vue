@@ -7,10 +7,10 @@ import SearchBill from '@/components/SearchBill.vue';
 import { List, FileSearch } from '@lucide/vue';
 import { useApi } from '@/composables/useApi';
 import { useLastVoteStore, Vote } from '@/stores/lastVote';
-import { toast } from 'vue-sonner';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { governanceDocuments, provisions as provisionsTable } from '@populegis/db';
 import { useHead } from '@unhead/vue';
+import { voteToast } from '@/utils/voteAssist';
 
 type Doc = InferSelectModel<typeof governanceDocuments>;
 type ProvisionRow = InferSelectModel<typeof provisionsTable>;
@@ -46,10 +46,8 @@ watch([() => props.documentId, offset, limit], () => {
 function onVote(vote: Vote) {
   currentVote.value = vote;
   lastVoteStore.setState(props.documentId, 0, vote);
-  toast.info('Your interest in popular government is appreciated.', {
-    description: 'Please check back soon for further updates.',
-    closeButton: true,
-  });
+  if (vote == Vote.NULL) return;
+  voteToast(props.documentId, 0, vote);
 }
 
 const pageDescription = 'A gift to Their Excellencies the Citizens of the United States of America on the occasion of their Semiquincentennial'

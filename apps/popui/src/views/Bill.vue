@@ -10,12 +10,12 @@ import { JsonViewer } from '@/components/ui/json-viewer';
 import { List, FileSearch, Route, ListTree } from '@lucide/vue';
 import { useLastAppearedStore } from '../stores/lastAppeared.ts';
 import { useLastVoteStore, Vote } from '../stores/lastVote.ts';
-import { toast } from 'vue-sonner';
 import { useHead } from '@unhead/vue';
 import { useApi } from '@/composables/useApi';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { bills, provisions as provisionsTable } from '@populegis/db';
 import type { CongressBillStatus } from '@/utils/index.ts';
+import { voteToast } from '@/utils/voteAssist.ts';
 
 const props = defineProps({
   packageid: { type: String, required: false },
@@ -92,10 +92,8 @@ const onVote = (vote: Vote) => {
   if (billPackageId.value) {
     currentVote.value = vote;
     lastVoteStore.setState(billPackageId.value, 0, vote);
-    toast.info('Your interest in popular government is appreciated.', {
-      description: 'Please check back soon for further updates.',
-      closeButton: true,
-    });
+    if (vote == Vote.NULL) return;
+    voteToast(billPackageId.value, 0, vote);
   }
 };
 

@@ -9,9 +9,9 @@ import { MoreVertical, Link, Check, Ban, List } from '@lucide/vue';
 import TableProvision from './TableProvision.vue';
 import SmsSignupAssistant from './SmsSignupAssistant.vue';
 import SmsExampleFlow from './SmsExampleFlow.vue';
-import { toast } from "vue-sonner";
 import { getBillBasePath } from '@/utils/billPath';
 import Tooltip from '@/components/Tooltip.vue';
+import { voteToast } from '@/utils/voteAssist.ts';
 
 const lastAppearedStore = useLastAppearedStore();
 const provisionRef = ref<null | HTMLElement>(null);
@@ -141,13 +141,11 @@ const currentVote = ref<Vote>(Vote.NULL);
 const onVote = (vote: Vote) => {
   currentVote.value = vote;
   onMouseout();
-  toast.info('Your interest in popular government is appreciated.', {
-    description: 'Please check back soon for further updates.',
-    closeButton: true,
-  })
   if (props.provision.packageid) {
     lastVote.setState(props.provision.packageid, props.provision.location, vote);
   }
+  if (vote == Vote.NULL) return;
+  voteToast(props.provision.packageid, props.provision.location, vote);
 }
 const NULL = Vote.NULL;
 const AYE = Vote.AYE;

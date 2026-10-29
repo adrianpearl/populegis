@@ -69,22 +69,37 @@ ${attestationText}
 ${voteString.value}`;
 });
 
-const { copy, copied } = useClipboard({ source: signupMessage });
+const { copy, copied, isSupported } = useClipboard({ source: signupMessage, legacy: true });
 
-const copyMessage = () => {
+async function copyMessage() {
   if (!isValid.value) {
-    if (voteString.value === '') {
-      toast.error('Please cast a vote on the governance provisions using the voting buttons above');
-    } else {
-      toast.error('Please fill out all fields correctly');
-    }
+    toast.error(voteString.value === ''
+      ? 'Please cast a vote on the governance provisions using the voting buttons above'
+      : 'Please fill out all fields correctly');
     return;
   }
-  copy();
-  toast.success('Message copied to clipboard', {
-    description: 'Send this message via SMS to complete signup'
-  });
-};
+  // iOS Firefox: force the legacy path synchronously in the gesture
+  const ta = document.createElement('textarea');
+  ta.value = signupMessage.value;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.top = '0';
+  ta.style.left = '0';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+  // execCommand is deprecated but needed for iOS Firefox
+  const ok = document.execCommand('copy');
+  document.body.removeChild(ta);
+
+  if (ok) {
+    toast.success('Message copied', { description: 'Paste into your SMS app and send to the Popular Legislation number.' });
+  } else {
+    toast.error('Copy failed', { description: 'Select the message text and copy it manually.' });
+  }
+}
 </script>
 
 <template>
