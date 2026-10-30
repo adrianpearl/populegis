@@ -46,8 +46,6 @@ watch([() => props.documentId, offset, limit], () => {
 function onVote(vote: Vote) {
   currentVote.value = vote;
   lastVoteStore.setState(props.documentId, 0, vote);
-  if (vote == Vote.NULL) return;
-  voteToast(props.documentId, 0, vote);
 }
 
 const pageDescription = 'A gift to Their Excellencies the Citizens of the United States of America on the occasion of their Semiquincentennial'
