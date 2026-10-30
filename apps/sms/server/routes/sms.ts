@@ -11,9 +11,17 @@ export const sms = new Hono<{ Bindings: Env }>();
 type Step = 'consent' | 'account';
 type SessionData = { step: Step; firstname?: string; lastname?: string };
 
+function escapeXml(s: string) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function reply(message: string) {
   return new Response(
-    `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${message}</Message></Response>`,
+    `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(message)}</Message></Response>`,
     { headers: { 'content-type': 'text/xml' } },
   );
 }
