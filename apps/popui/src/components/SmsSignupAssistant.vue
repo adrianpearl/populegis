@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Copy, Check } from '@lucide/vue';
 import { useClipboard } from '@vueuse/core';
-import { toast } from 'vue-sonner';
+import { toast } from '@/lib/toast';
 import { useLastVoteStore, Vote } from '../stores/lastVote';
 import { useRoute } from 'vue-router';
+import { twilio_number } from '@/lib/toast';
 
 const route = useRoute();
 const lastVote = useLastVoteStore();
@@ -95,9 +96,9 @@ async function copyMessage() {
   document.body.removeChild(ta);
 
   if (ok) {
-    toast.success('Message copied', { description: 'Paste into your SMS app and send to the Popular Legislation number.' });
+    toast.success(`Message copied', 'Paste into your SMS app and send to ${twilio_number}.`);
   } else {
-    toast.error('Copy failed', { description: 'Select the message text and copy it manually.' });
+    toast.error('Copy failed', 'Select the message text and copy it manually.');
   }
 }
 </script>

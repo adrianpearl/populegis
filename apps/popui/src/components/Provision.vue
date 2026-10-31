@@ -11,7 +11,6 @@ import SmsSignupAssistant from './SmsSignupAssistant.vue';
 import SmsExampleFlow from './SmsExampleFlow.vue';
 import { getBillBasePath } from '@/utils/billPath';
 import Tooltip from '@/components/Tooltip.vue';
-import { voteToast } from '@/utils/voteAssist.ts';
 import { toast } from '@/lib/toast.ts';
 
 const lastAppearedStore = useLastAppearedStore();

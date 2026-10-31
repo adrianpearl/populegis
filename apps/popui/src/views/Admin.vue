@@ -7,7 +7,7 @@ import Loader from '@/components/Loader.vue';
 import { JsonViewer } from '@/components/ui/json-viewer';
 import { modifyXML, xmlRootProvision, provisionsXMLtoDB, type BillSummary } from '@/utils';
 import type { ProvisionRecord } from '@populegis/shared';
-import { toast } from "vue-sonner";
+import { toast } from '@/lib/toast.ts';
 
 type StatusTitle = { titleType: string; title: string };
 type StatusBill = {
@@ -124,13 +124,9 @@ async function upsertBill() {
     }
     return response;
   }).then(() => {
-    toast.success('Bill upserted.', {
-      closeButton: true,
-    })
+    toast.success('Bill upserted.')
   }).catch((error) => {
-    toast.error('Error', {
-      description: error
-    })
+    toast.error('Error', error)
   }).finally(() => { loadingUpsert.value = false; });
 }
 

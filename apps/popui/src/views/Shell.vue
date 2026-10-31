@@ -8,7 +8,7 @@ import Tooltip from '@/components/Tooltip.vue';
 import BillSearch from '@/components/BillSearch.vue';
 import NavItem from '@/components/NavItem.vue';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
-import { twilio_number } from '@/utils/voteAssist';
+import { twilio_number } from '@/lib/toast';
 
 const showSource = false; //import.meta.env.VITE_DB_URI.includes('localhost');
 const console_url = import.meta.env.VITE_CONSOLE_URL;
@@ -114,7 +114,7 @@ const navItems = computed(() => [
               </div>
               <div class="text-xs text-muted-foreground mt-8 p-4">
                 Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{ twilio_number
-                  }}</span> to get started. Message and data rates may apply. Message frequency
+                }}</span> to get started. Message and data rates may apply. Message frequency
                 varies. Text STOP to cancel, HELP for help. View our <router-link to="/terms"
                   class="underline text-foreground">Terms of Service</router-link> and <router-link to="/privacy"
                   class="underline text-foreground">Privacy Policy</router-link>.
