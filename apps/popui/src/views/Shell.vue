@@ -33,6 +33,10 @@ watch(() => showMenu.value, (newVal) => {
   if (newVal) mobileSearch.value = false;
 })
 
+watch(() => mobileSearch.value, (newVal) => {
+  if (newVal) showMenu.value = false;
+})
+
 const navItems = computed(() => [
   {
     props: { to: '/' },
@@ -96,8 +100,8 @@ const navItems = computed(() => [
         </div>
       </div>
       <div class="flex gap-2 flex-row">
-        <BillSearch mobile v-model:open="mobileSearch" :disabled="showMenu" />
-        <Sheet v-model:open="showMenu">
+        <BillSearch mobile v-model:open="mobileSearch" />
+        <Sheet v-model:open="showMenu" :modal="false">
           <SheetTrigger as-child>
             <Button size="icon-lg" variant="ghost" class="relative overflow-hidden">
               <Transition mode="out-in" enter-active-class="transition duration-150 ease-out"
