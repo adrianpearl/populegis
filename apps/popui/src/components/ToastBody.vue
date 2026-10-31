@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Copy, Check, CircleCheck, CircleX, Info, TriangleAlert } from '@lucide/vue';
-import { twilio_number } from '@/lib/toast';
+import { twilio_number_display, isMobile } from '@/lib/toast';
 
 const props = defineProps<{
   title: string;
@@ -31,10 +31,19 @@ function doCopy() {
     setTimeout(() => (copied.value = false), 1500);
   }
 }
+
+function onVoteClick() {
+  if (isMobile() && props.copyText) {
+    const href = `sms:+13477369153?body=${encodeURIComponent(props.copyText)}`;
+    window.location.href = href;
+    return;
+  }
+  doCopy();
+}
 </script>
 
 <template><button type="button" class="flex items-start gap-2 w-full text-left" :class="copyText ? '' : 'pointer-events-none'"
-  @click.stop="doCopy">
+  @click.stop="onVoteClick">
   <Check v-if="copyText && copied" class="size-4 mt-0.5 shrink-0" />
   <Copy v-else-if="copyText" class="size-4 mt-0.5 shrink-0" />
   <CircleCheck v-else-if="type === 'success'" class="size-4 mt-0.5 shrink-0 text-green-600" />
@@ -46,7 +55,7 @@ function doCopy() {
     <template v-if="copyText">
       Text
       <span class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">{{ copyText }}</span>
-      to {{ twilio_number }}
+      to {{ twilio_number_display }}
     </template>
     <template v-else>{{ title }}</template>
     <span v-if="description" class="mt-0.5 block text-xs text-muted-foreground">{{ description }}</span>

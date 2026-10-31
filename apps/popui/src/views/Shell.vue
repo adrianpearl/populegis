@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { computed, ref, toRefs, watch } from 'vue';
+import { computed, onMounted, ref, toRefs, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useDark, useToggle } from '@vueuse/core';
-import { Home, FileCode2, Database, Sun, Moon, FolderGit2, ExternalLink, Menu, X, Landmark, FolderLock } from '@lucide/vue';
+import { Home, FileCode2, Database, Sun, Moon, FolderGit2, ExternalLink, Menu, X, Landmark, FolderLock, MessageCirclePlus } from '@lucide/vue';
 import Tooltip from '@/components/Tooltip.vue';
 import BillSearch from '@/components/BillSearch.vue';
 import NavItem from '@/components/NavItem.vue';
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
-import { twilio_number } from '@/lib/toast';
+import { twilio_number, twilio_number_display, isMobile } from '@/lib/toast';
+
+const isMobileDevice = ref(false);
+
+onMounted(() => {
+  isMobileDevice.value = isMobile();
+})
 
 const showSource = false; //import.meta.env.VITE_DB_URI.includes('localhost');
 const console_url = import.meta.env.VITE_CONSOLE_URL;
@@ -80,6 +86,12 @@ const navItems = computed(() => [
     icon: isDark.value ? Sun : Moon,
     action: toggleDark, // Triggers click handler
     show: true
+  },
+  {
+    props: { href: `sms:${twilio_number}?body=SIGNUP` },
+    tooltip: 'Get Started',
+    icon: MessageCirclePlus,
+    show: isMobileDevice.value
   }
 ])
 </script>
@@ -121,7 +133,8 @@ const navItems = computed(() => [
                   :href="item.props.href" :icon="item.icon" :label="item.tooltip" :action="item.action" />
               </div>
               <div class="text-xs text-muted-foreground mt-8 p-4">
-                Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{ twilio_number
+                Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{
+                  twilio_number_display
                   }}</span> to get started. Message and data rates may apply. Message frequency
                 varies. Text STOP to cancel, HELP for help. View our <router-link to="/terms"
                   class="underline text-foreground">Terms of Service</router-link> and <router-link to="/privacy"
@@ -194,7 +207,8 @@ const navItems = computed(() => [
     <div class="sticky bottom-0">
       <div class="mr-6 my-4">
         <div class="text-xs text-muted-foreground">
-          Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{ twilio_number }}</span>
+          Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{ twilio_number_display
+            }}</span>
           to get started. Message and data rates may apply. Message frequency varies.
           Text STOP to cancel, HELP for help. View our <router-link to="/terms"
             class="text-xs text-foreground hover:underline cursor-pointer text-nowrap">Terms of Service</router-link>

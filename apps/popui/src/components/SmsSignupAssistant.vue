@@ -7,7 +7,7 @@ import { useClipboard } from '@vueuse/core';
 import { toast } from '@/lib/toast';
 import { useLastVoteStore, Vote } from '../stores/lastVote';
 import { useRoute } from 'vue-router';
-import { twilio_number } from '@/lib/toast';
+import { twilio_number_display } from '@/lib/toast';
 
 const route = useRoute();
 const lastVote = useLastVoteStore();
@@ -96,7 +96,7 @@ async function copyMessage() {
   document.body.removeChild(ta);
 
   if (ok) {
-    toast.success(`Message copied', 'Paste into your SMS app and send to ${twilio_number}.`);
+    toast.success(`Message copied', 'Paste into your SMS app and send to ${twilio_number_display}.`);
   } else {
     toast.error('Copy failed', 'Select the message text and copy it manually.');
   }
