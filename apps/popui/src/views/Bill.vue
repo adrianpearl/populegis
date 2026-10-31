@@ -15,6 +15,7 @@ import { useApi } from '@/composables/useApi';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { bills, provisions as provisionsTable } from '@populegis/db';
 import type { CongressBillStatus } from '@/utils/index.ts';
+import { toast } from '@/lib/toast.ts';
 import { voteToast } from '@/utils/voteAssist.ts';
 
 const props = defineProps({
@@ -93,7 +94,8 @@ const onVote = (vote: Vote) => {
     currentVote.value = vote;
     lastVoteStore.setState(billPackageId.value, 0, vote);
     if (vote == Vote.NULL) return;
-    voteToast(billPackageId.value, 0, vote);
+    toast.vote(billPackageId.value, 0, vote);
+    //voteToast(billPackageId.value, 0, vote);
   }
 };
 

@@ -10,7 +10,6 @@ import { useLastVoteStore, Vote } from '@/stores/lastVote';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { governanceDocuments, provisions as provisionsTable } from '@populegis/db';
 import { useHead } from '@unhead/vue';
-import { voteToast } from '@/utils/voteAssist';
 
 type Doc = InferSelectModel<typeof governanceDocuments>;
 type ProvisionRow = InferSelectModel<typeof provisionsTable>;
