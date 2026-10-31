@@ -89,17 +89,27 @@ onClickOutside(searchContainerRef, () => {
 
 <template><template v-if="mobile">
   <Button size="icon-lg" @click="open = !open" variant="ghost" :disabled="disabled">
-    <Search />
+    <Transition mode="out-in" enter-active-class="transition duration-150 ease-out"
+      enter-from-class="opacity-0 scale-75 -rotate-45" leave-active-class="transition duration-100 ease-in"
+      leave-to-class="opacity-0 scale-75 rotate-45">
+      <!-- Show close icon when open, search icon when closed -->
+      <X v-if="open" />
+      <Search v-else />
+    </Transition>
   </Button>
   <Teleport to="body">
     <div v-if="open"
       class="fixed inset-x-0 top-14 bottom-0 z-40 overflow-y-scroll bg-background px-3 pb-8 text-primary">
-      <div class="flex h-14 items-center justify-between gap-2 mb-2">
-        <Input placeholder="Search by bill title" v-model="searchQuery" :initial-focus="true"
-          name="mobile-search-input" />
-        <Button variant="ghost" size="icon-lg" @click="open = false">
-          <X />
-        </Button>
+      <div class="flex h-14 items-center mb-2">
+        <div class="relative flex-1">
+          <Input placeholder="Search by bill title" v-model="searchQuery" :initial-focus="true"
+            name="mobile-search-input" class="pr-9" />
+          <button v-if="searchQuery" type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground bg-muted rounded-full p-1"
+            @click="searchQuery = ''">
+            <X class="size-4" />
+          </button>
+        </div>
       </div>
 
       <div v-if="!searchQuery && history.length" class="flex flex-col px-1">

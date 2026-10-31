@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { computed, ref, toRefs } from 'vue';
+import { computed, ref, toRefs, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useDark, useToggle } from '@vueuse/core';
 import { Home, FileCode2, Database, Sun, Moon, FolderGit2, ExternalLink, Menu, X, Landmark, FolderLock } from '@lucide/vue';
@@ -28,6 +28,10 @@ const props = defineProps({
 const { showMobileMainOverlay, pageLoading } = toRefs(props);
 const mobileSearch = ref(false);
 const showMenu = ref(false);
+
+watch(() => showMenu.value, (newVal) => {
+  if (newVal) mobileSearch.value = false;
+})
 
 const navItems = computed(() => [
   {
@@ -114,7 +118,7 @@ const navItems = computed(() => [
               </div>
               <div class="text-xs text-muted-foreground mt-8 p-4">
                 Text <span class="text-foreground">SIGNUP</span> to <span class="text-foreground">{{ twilio_number
-                }}</span> to get started. Message and data rates may apply. Message frequency
+                  }}</span> to get started. Message and data rates may apply. Message frequency
                 varies. Text STOP to cancel, HELP for help. View our <router-link to="/terms"
                   class="underline text-foreground">Terms of Service</router-link> and <router-link to="/privacy"
                   class="underline text-foreground">Privacy Policy</router-link>.
